@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day Tasks Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ============= CSS RESET & BASE ============= */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    html {
+      font-size: 16px;
+    }
+
+    /* ============= COLOR VARIABLES ============= */
+    :root {
+      --background: #faf9f7;
+      --foreground: #1a1a1a;
+      --card: #f5f3ef;
+      --border: rgba(0, 0, 0, 0.08);
+      --olive-green: #6b7455;
+      --olive-green-light: #8b9474;
+      --olive-green-subtle: #a8b193;
+      --beige-card: #f5f3ef;
+      --off-white: #faf9f7;
+      --warm-gray: #8a8884;
+      --destructive: #d4183d;
+    }
+
+    /* ============= TYPOGRAPHY ============= */
+    h1 {
+      font-size: 1.875rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--foreground);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--foreground);
+    }
+
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--foreground);
+    }
+
+    h4 {
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--foreground);
+    }
+
+    p {
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--foreground);
+    }
+
+    label, button {
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    input, textarea {
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    /* ============= BODY & PAGE ============= */
+    body {
+      background-color: var(--off-white);
+      color: var(--foreground);
+    }
+
+    .page-container {
+      min-height: 100vh;
+      background-color: var(--off-white);
+      padding-bottom: 8rem;
+    }
+
+    .content-wrapper {
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .content-wrapper {
+        padding: 0;
+      }
+    }
+
+    /* ============= HEADER ============= */
+    .day-header {
+      padding-top: 2rem;
+      padding-bottom: 1.5rem;
+      transition: opacity 0.3s;
+    }
+
+    .day-header.past {
+      opacity: 0.7;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .header-title-section h1 {
+      display: inline;
+      margin-right: 0.75rem;
+    }
+
+    .context-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .context-badge.today {
+      background-color: var(--olive-green);
+      color: white;
+    }
+
+    .context-badge.past {
+      background-color: rgba(138, 136, 132, 0.2);
+      color: var(--warm-gray);
+    }
+
+    .context-badge.upcoming {
+      background-color: rgba(168, 177, 147, 0.3);
+      color: var(--olive-green);
+    }
+
+    .header-subtitle {
+      color: var(--warm-gray);
+      font-size: 1.125rem;
+      margin-bottom: 1rem;
+    }
+
+    .header-task-count {
+      font-size: 0.875rem;
+      color: var(--warm-gray);
+    }
+
+    /* ============= CONTEXT BANNER ============= */
+    .context-banner {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      border-left: 4px solid;
+      animation: slideDown 0.4s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .context-banner.today {
+      background-color: rgba(107, 116, 85, 0.05);
+      border-left-color: var(--olive-green);
+    }
+
+    .context-banner.past {
+      background-color: rgba(138, 136, 132, 0.05);
+      border-left-color: var(--warm-gray);
+    }
+
+    .context-banner.upcoming {
+      background-color: rgba(168, 177, 147, 0.1);
+      border-left-color: var(--olive-green-subtle);
+    }
+
+    .context-banner p {
+      font-size: 0.875rem;
+      color: rgba(26, 26, 26, 0.7);
+      margin: 0;
+    }
+
+    /* ============= TASK STREAM ============= */
+    .task-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ============= TASK BLOCK ============= */
+    .task-block {
+      background-color: var(--beige-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      transition: all 0.3s;
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .task-block.past {
+      opacity: 0.6;
+    }
+
+    .task-block.current {
+      box-shadow: 0 0 0 2px rgba(107, 116, 85, 0.3), 0 10px 15px -3px rgba(107, 116, 85, 0.1);
+    }
+
+    .task-block-content {
+      padding: 1.5rem;
+    }
+
+    /* Task Header */
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .task-title-section h3 {
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .task-time {
+      font-size: 0.875rem;
+      color: var(--warm-gray);
+    }
+
+    .task-menu-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      color: var(--warm-gray);
+      font-size: 1.25rem;
+      transition: color 0.2s;
+    }
+
+    .task-menu-button:hover {
+      color: var(--foreground);
+    }
+
+    /* Location Info */
+    .location-box {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background-color: rgba(255, 255, 255, 0.4);
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .location-box.nearby {
+      box-shadow: inset 0 0 0 2px rgba(107, 116, 85, 0.2);
+    }
+
+    .location-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-top: 0.125rem;
+      flex-shrink: 0;
+      color: var(--olive-green);
+    }
+
+    .location-icon.pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .location-name {
+      font-size: 0.875rem;
+      color: var(--foreground);
+      margin-bottom: 0.25rem;
+    }
+
+    .location-distance {
+      font-size: 0.75rem;
+      color: var(--warm-gray);
+    }
+
+    .location-distance.nearby {
+      color: var(--olive-green);
+    }
+
+    /* Reached Indicator */
+    .reached-indicator {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background-color: rgba(107, 116, 85, 0.1);
+      border-radius: 0.5rem;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    .reached-indicator p {
+      font-size: 0.875rem;
+      color: var(--olive-green);
+      margin: 0;
+    }
+
+    /* Status Buttons */
+    .status-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .status-button {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .status-button.active {
+      background-color: var(--olive-green);
+      color: white;
+      cursor: default;
+    }
+
+    .status-button.inactive {
+      background-color: rgba(255, 255, 255, 0.5);
+      color: var(--foreground);
+    }
+
+    .status-button.inactive:hover {
+      background-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .status-button.inactive:active {
+      transform: scale(0.95);
+    }
+
+    .status-button svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* Action Buttons Row */
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .action-button {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      background-color: rgba(255, 255, 255, 0.5);
+      border: 1px solid transparent;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .action-button:hover {
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .action-button-sm {
+      flex: initial;
+      min-width: 2.5rem;
+    }
+
+    .action-button svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .notes-indicator {
+      position: relative;
+    }
+
+    .notes-indicator::after {
+      content: '';
+      position: absolute;
+      top: -0.25rem;
+      right: -0.25rem;
+      width: 0.5rem;
+      height: 0.5rem;
+      background-color: var(--olive-green);
+      border-radius: 50%;
+    }
+
+    /* ============= FLOATING ACTION BAR ============= */
+    .floating-action-bar {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      padding: 0 1rem;
+      width: 100%;
+      max-width: 28rem;
+      opacity: 0;
+      pointer-events: none;
+      animation: fadeOut 0.2s ease-out;
+    }
+
+    .floating-action-bar.visible {
+      opacity: 1;
+      pointer-events: auto;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+    }
+
+    .floating-bar-content {
+      background-color: white;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      border-radius: 9999px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border: 1px solid var(--border);
+      justify-content: center;
+    }
+
+    .floating-bar-button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .floating-bar-button.primary {
+      background-color: var(--olive-green);
+      color: white;
+    }
+
+    .floating-bar-button.primary:hover {
+      background-color: var(--olive-green-light);
+    }
+
+    .floating-bar-button.ghost {
+      background: none;
+      color: var(--foreground);
+    }
+
+    .floating-bar-button.ghost:hover {
+      background-color: rgba(107, 116, 85, 0.1);
+    }
+
+    .floating-bar-divider {
+      height: 1.5rem;
+      width: 1px;
+      background-color: var(--border);
+    }
+
+    .floating-bar-button svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* ============= NOTES SHEET ============= */
+    .notes-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid var(--border);
+      z-index: 100;
+      max-height: 80vh;
+      transform: translateY(100%);
+      transition: transform 0.3s ease-out;
+      border-radius: 1rem 1rem 0 0;
+      box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .notes-sheet.open {
+      transform: translateY(0);
+    }
+
+    .notes-sheet-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .notes-sheet-title {
+      font-size: 1.125rem;
+      font-weight: 500;
+      color: var(--foreground);
+      margin: 0;
+    }
+
+    .notes-sheet-content {
+      padding: 1.5rem;
+      overflow-y: auto;
+      max-height: calc(80vh - 60px);
+    }
+
+    .notes-label {
+      font-size: 0.875rem;
+      color: var(--warm-gray);
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .auto-saving {
+      font-size: 0.75rem;
+      color: var(--olive-green);
+      animation: pulse 1s infinite;
+    }
+
+    .notes-textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      background-color: white;
+      font-family: inherit;
+      resize: none;
+      margin-bottom: 1rem;
+    }
+
+    .notes-save-button {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background-color: var(--olive-green);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background-color 0.2s;
+    }
+
+    .notes-save-button:hover {
+      background-color: var(--olive-green-light);
+    }
+
+    /* ============= DROPDOWN MENU ============= */
+    .dropdown-menu {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background-color: white;
+      min-width: 200px;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      margin-top: 0.5rem;
+    }
+
+    .dropdown-menu.active .dropdown-content {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      font-size: 0.875rem;
+      color: var(--foreground);
+      transition: background-color 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background-color: rgba(107, 116, 85, 0.05);
+    }
+
+    .dropdown-item.separator {
+      padding: 0;
+      margin: 0.5rem 0;
+      border-top: 1px solid var(--border);
+      cursor: default;
+    }
+
+    .dropdown-item.destructive {
+      color: var(--destructive);
+    }
+
+    .dropdown-item.destructive:hover {
+      background-color: rgba(212, 24, 61, 0.05);
+    }
+
+    /* ============= RESPONSIVE ============= */
+    @media (max-width: 640px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .status-button {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.75rem;
+      }
+
+      .floating-bar-button span:last-child {
+        display: none;
+      }
+
+      .floating-bar-content {
+        padding: 0.75rem;
+        gap: 0.5rem;
+      }
+
+      .floating-bar-button {
+        padding: 0.5rem 0.75rem;
+      }
+
+      .notes-sheet {
+        max-height: 60vh;
+      }
+
+      .notes-sheet-content {
+        max-height: calc(60vh - 60px);
+      }
+
+      .action-button {
+        font-size: 0.75rem;
+        gap: 0.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <div class="content-wrapper">
+      <!-- Day Header -->
+      <header class="day-header" id="dayHeader">
+        <div class="header-top">
+          <div class="header-title-section">
+            <h1 id="dayOfWeek">Sunday</h1>
+            <span class="context-badge today" id="contextBadge">Today</span>
+          </div>
+        </div>
+        <p class="header-subtitle" id="dayDate">Feb 2, 2026</p>
+        <p class="header-task-count"><span id="taskCount">5</span> tasks planned</p>
+      </header>
+
+      <!-- Context Banner -->
+      <div class="context-banner today" id="contextBanner">
+        <p id="bannerMessage">Focus on what's ahead. We'll track progress quietly.</p>
+      </div>
+
+      <!-- Task Stream -->
+      <div class="task-stream" id="taskStream">
+        <!-- Tasks will be dynamically inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Bar -->
+  <div class="floating-action-bar" id="floatingActionBar">
+    <div class="floating-bar-content">
+      <button class="floating-bar-button primary" onclick="addTask()">
+        <span>+</span>
+        <span>Add task</span>
+      </button>
+      <div class="floating-bar-divider"></div>
+      <button class="floating-bar-button ghost" onclick="jumpToCurrent()">
+        <span>→</span>
+        <span>Current task</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Notes Sheet (Modal) -->
+  <div class="notes-sheet" id="notesSheet">
+    <div class="notes-sheet-header">
+      <h2 class="notes-sheet-title" id="notesTaskTitle">Task Title</h2>
+    </div>
+    <div class="notes-sheet-content">
+      <div class="notes-label">
+        <span>Notes</span>
+        <span class="auto-saving" id="autoSavingIndicator" style="display: none;">Auto-saving...</span>
+      </div>
+      <textarea class="notes-textarea" id="notesTextarea" placeholder="Add your notes here..."></textarea>
+      <button class="notes-save-button" onclick="saveNotes()">
+        <span>✓</span>
+        <span>Save & Close</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ============= DATA & STATE =============
+    const mockTasks = [
+      {
+        id: '1',
+        title: 'Morning coffee at local café',
+        scheduledTime: '08:30 AM',
+        location: { name: 'Café Soleil', lat: 48.8566, lng: 2.3522 },
+        distance: 45,
+        status: 'pending',
+        notes: 'Try their croissants!',
+      },
+      {
+        id: '2',
+        title: 'Visit Louvre Museum',
+        scheduledTime: '10:00 AM',
+        location: { name: 'Louvre Museum', lat: 48.8606, lng: 2.3376 },
+        distance: 1200,
+        status: 'pending',
+        notes: 'Pre-booked tickets. Don\'t forget to see Mona Lisa.',
+      },
+      {
+        id: '3',
+        title: 'Lunch at Le Marais',
+        scheduledTime: '01:00 PM',
+        location: { name: 'L\'As du Fallafel', lat: 48.8575, lng: 2.3598 },
+        distance: 3500,
+        status: 'pending',
+        notes: '',
+      },
+      {
+        id: '4',
+        title: 'Seine River walk',
+        scheduledTime: '03:30 PM',
+        location: { name: 'Pont des Arts', lat: 48.8583, lng: 2.3375 },
+        distance: 5200,
+        status: 'pending',
+        notes: 'Great spot for photos',
+      },
+      {
+        id: '5',
+        title: 'Dinner reservation',
+        scheduledTime: '07:30 PM',
+        location: { name: 'Le Comptoir du Relais', lat: 48.8518, lng: 2.3392 },
+        distance: 8900,
+        status: 'pending',
+        notes: '',
+      },
+    ];
+
+    let tasks = [...mockTasks];
+    let dayContext = 'today';
+    let currentTaskId = null;
+    let selectedNoteTaskId = null;
+    let autoSaveTimer = null;
+    let proximityCheckInterval = null;
+
+    // ============= INITIALIZATION =============
+    function init() {
+      updatePageDate();
+      checkProximity();
+      proximityCheckInterval = setInterval(checkProximity, 10000);
+      updateCurrentTask();
+      renderTasks();
+      setupScrollListener();
+      window.addEventListener('beforeunload', cleanup);
+    }
+
+    function cleanup() {
+      if (proximityCheckInterval) clearInterval(proximityCheckInterval);
+    }
+
+    // ============= DATE & TIME UTILITIES =============
+    function updatePageDate() {
+      const date = new Date();
+      const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+      const dayDate = date.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+
+      document.getElementById('dayOfWeek').textContent = dayOfWeek;
+      document.getElementById('dayDate').textContent = dayDate;
+      document.getElementById('taskCount').textContent = tasks.length;
+      
+      updateHeaderContext();
+    }
+
+    function updateHeaderContext() {
+      const dayHeader = document.getElementById('dayHeader');
+      const badge = document.getElementById('contextBadge');
+      const banner = document.getElementById('contextBanner');
+      
+      dayHeader.classList.remove('past');
+      if (dayContext === 'past') {
+        dayHeader.classList.add('past');
+      }
+
+      badge.className = `context-badge ${dayContext}`;
+      badge.textContent = dayContext === 'today' ? 'Today' : 
+                         dayContext === 'past' ? 'Past Day' : 'Upcoming Day';
+
+      banner.className = `context-banner ${dayContext}`;
+      const messages = {
+        today: "Focus on what's ahead. We'll track progress quietly.",
+        past: "This day has passed. Records are preserved.",
+        upcoming: "Plans can still be adjusted.",
+      };
+      document.getElementById('bannerMessage').textContent = messages[dayContext];
+    }
+
+    // ============= PROXIMITY CHECK =============
+    function checkProximity() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      tasks = tasks.map(task => {
+        if (task.distance < 50 && task.status === 'pending') {
+          return { ...task, status: 'reached', reachedAt: timeStr };
+        }
+        return task;
+      });
+
+      updateCurrentTask();
+      renderTasks();
+    }
+
+    // ============= CURRENT TASK =============
+    function updateCurrentTask() {
+      const nextTask = tasks.find(t => t.status === 'pending');
+      currentTaskId = nextTask?.id || null;
+    }
+
+    // ============= DISTANCE FORMATTING =============
+    function getDistanceDisplay(distance) {
+      if (distance < 50) {
+        return { text: 'Nearby', color: 'nearby' };
+      } else if (distance < 1000) {
+        return { text: `${distance}m away`, color: '' };
+      } else {
+        return { text: `${(distance / 1000).toFixed(1)}km away`, color: '' };
+      }
+    }
+
+    // ============= TASK RENDERING =============
+    function renderTasks() {
+      const taskStream = document.getElementById('taskStream');
+      taskStream.innerHTML = '';
+
+      tasks.forEach((task, index) => {
+        let variant = 'upcoming';
+        if (task.status !== 'pending') {
+          variant = 'past';
+        } else if (task.id === currentTaskId) {
+          variant = 'current';
+        }
+
+        const distance = getDistanceDisplay(task.distance);
+        const hasNotes = task.notes && task.notes.trim().length > 0;
+
+        const taskEl = document.createElement('div');
+        taskEl.id = `task-${task.id}`;
+        taskEl.className = `task-block ${variant}`;
+        taskEl.innerHTML = `
+          <div class="task-block-content">
+            <!-- Header -->
+            <div class="task-header">
+              <div class="task-title-section">
+                <h3>${escapeHtml(task.title)}</h3>
+                <p class="task-time">${task.scheduledTime}</p>
+              </div>
+              <div class="dropdown-menu" id="menu-${task.id}">
+                <button class="task-menu-button" onclick="toggleDropdown('menu-${task.id}')">⋮</button>
+                <div class="dropdown-content">
+                  <button class="dropdown-item" onclick="editTask('${task.id}')">Edit task</button>
+                  <button class="dropdown-item" onclick="addTaskBefore('${task.id}')">Add task before</button>
+                  <button class="dropdown-item" onclick="addTaskAfter('${task.id}')">Add task after</button>
+                  <div class="dropdown-item separator"></div>
+                  <button class="dropdown-item destructive" onclick="deleteTask('${task.id}')">Delete task</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Location -->
+            <div class="location-box ${distance.color === 'nearby' ? 'nearby' : ''}">
+              <svg class="location-icon ${distance.color === 'nearby' ? 'pulse' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <div style="flex: 1; min-width: 0;">
+                <p class="location-name">${escapeHtml(task.location.name)}</p>
+                <p class="location-distance ${distance.color}">${distance.text}</p>
+              </div>
+            </div>
+
+            <!-- Reached Indicator -->
+            ${task.reachedAt ? `
+              <div class="reached-indicator">
+                <p>✓ Reached at ${task.reachedAt}</p>
+              </div>
+            ` : ''}
+
+            <!-- Status Buttons -->
+            ${dayContext !== 'past' ? `
+              <div class="status-buttons">
+                <button class="status-button ${task.status === 'reached' ? 'active' : 'inactive'}" 
+                        onclick="setTaskStatus('${task.id}', 'reached')" ${task.status === 'reached' ? 'disabled' : ''}>
+                  <span>✓</span>
+                  <span>Reached</span>
+                </button>
+                <button class="status-button ${task.status === 'pending' ? 'active' : 'inactive'}" 
+                        onclick="setTaskStatus('${task.id}', 'pending')" ${task.status === 'pending' ? 'disabled' : ''}>
+                  <span>◯</span>
+                  <span>On the way</span>
+                </button>
+                <button class="status-button ${task.status === 'skipped' ? 'active' : 'inactive'}" 
+                        onclick="setTaskStatus('${task.id}', 'skipped')" ${task.status === 'skipped' ? 'disabled' : ''}>
+                  <span>✕</span>
+                  <span>Skipped</span>
+                </button>
+              </div>
+            ` : ''}
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+              <button class="action-button" onclick="viewMap('${task.id}')">
+                <span>→</span>
+                <span>View on Map</span>
+              </button>
+              <button class="action-button action-button-sm" onclick="shareLocation('${task.id}')" title="Share location">
+                <span>↗</span>
+              </button>
+              <button class="action-button action-button-sm notes-indicator ${hasNotes ? 'has-notes' : ''}" 
+                      onclick="openNotes('${task.id}')" title="Notes">
+                <span>📝</span>
+              </button>
+            </div>
+          </div>
+        `;
+
+        taskStream.appendChild(taskEl);
+      });
+    }
+
+    // ============= TASK ACTIONS =============
+    function setTaskStatus(taskId, status) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      task.status = status;
+      if (status === 'reached') {
+        task.reachedAt = timeStr;
+        showNotification(`Reached at ${timeStr}`, 'success');
+      }
+
+      updateCurrentTask();
+      renderTasks();
+    }
+
+    function deleteTask(taskId) {
+      tasks = tasks.filter(t => t.id !== taskId);
+      updateCurrentTask();
+      renderTasks();
+      showNotification('Task removed', 'success');
+      closeDropdown();
+    }
+
+    function editTask(taskId) {
+      showNotification('Edit task', 'info');
+      closeDropdown();
+    }
+
+    function addTaskBefore(taskId) {
+      showNotification('Add task before', 'info');
+      closeDropdown();
+    }
+
+    function addTaskAfter(taskId) {
+      showNotification('Add task after', 'info');
+      closeDropdown();
+    }
+
+    function viewMap(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        showNotification(`Opening map for ${task.location.name}`, 'info');
+      }
+    }
+
+    function shareLocation(taskId) {
+      showNotification('Location link copied', 'success');
+    }
+
+    function addTask() {
+      showNotification('Add new task', 'info');
+    }
+
+    function jumpToCurrent() {
+      if (currentTaskId) {
+        const element = document.getElementById(`task-${currentTaskId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+
+    // ============= NOTES FUNCTIONALITY =============
+    function openNotes(taskId) {
+      selectedNoteTaskId = taskId;
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      document.getElementById('notesTaskTitle').textContent = task.title;
+      document.getElementById('notesTextarea').value = task.notes || '';
+      document.getElementById('notesSheet').classList.add('open');
+    }
+
+    function saveNotes() {
+      if (!selectedNoteTaskId) return;
+
+      const task = tasks.find(t => t.id === selectedNoteTaskId);
+      if (task) {
+        task.notes = document.getElementById('notesTextarea').value;
+      }
+
+      showNotification('Notes saved', 'success');
+      document.getElementById('notesSheet').classList.remove('open');
+      renderTasks();
+    }
+
+    function closeNotes() {
+      document.getElementById('notesSheet').classList.remove('open');
+    }
+
+    // ============= DROPDOWN MENU =============
+    function toggleDropdown(menuId) {
+      const menu = document.getElementById(menuId);
+      const allMenus = document.querySelectorAll('.dropdown-menu.active');
+      
+      allMenus.forEach(m => {
+        if (m.id !== menuId) {
+          m.classList.remove('active');
+        }
+      });
+
+      menu.classList.toggle('active');
+    }
+
+    function closeDropdown() {
+      document.querySelectorAll('.dropdown-menu.active').forEach(menu => {
+        menu.classList.remove('active');
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.dropdown-menu')) {
+        closeDropdown();
+      }
+    });
+
+    // ============= SCROLL LISTENER =============
+    function setupScrollListener() {
+      window.addEventListener('scroll', () => {
+        const bar = document.getElementById('floatingActionBar');
+        if (window.scrollY > 200) {
+          bar.classList.add('visible');
+        } else {
+          bar.classList.remove('visible');
+        }
+      });
+    }
+
+    // ============= NOTIFICATIONS =============
+    function showNotification(message, type = 'info') {
+      // Simple toast notification (you could use a better library)
+      const notif = document.createElement('div');
+      notif.style.cssText = `
+        position: fixed;
+        top: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${type === 'success' ? '#6b7455' : type === 'error' ? '#d4183d' : '#717182'};
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        z-index: 9999;
+        animation: slideDown 0.3s ease-out;
+      `;
+      notif.textContent = message;
+      document.body.appendChild(notif);
+
+      setTimeout(() => {
+        notif.style.animation = 'slideDown 0.3s ease-out reverse';
+        setTimeout(() => notif.remove(), 300);
+      }, 2000);
+    }
+
+    // ============= UTILITY FUNCTIONS =============
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

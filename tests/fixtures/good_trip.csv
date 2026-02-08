@@ -1,0 +1,3 @@
+trip_name,trip_start,trip_end,day_date,time,title,description,lat,lng
+Test Trip,2026-01-01,2026-01-02,2026-01-01,09:00,Start Journey,Beginning of trip,,
+Test Trip,2026-01-01,2026-01-02,2026-01-01,12:00,Lunch break,,,

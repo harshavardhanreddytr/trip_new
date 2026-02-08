@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trip Planner – Analytics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="analytics.css" />
+</head>
+<body>
+	<script>
+	/* ============= VARIABLES ============= */
+        :root {
+            --color-primary: #2563eb;
+            --color-bg: #f8fafc;
+            --color-bg-secondary: #eef2ff;
+            --color-bg-muted: #e5e7eb;
+
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-xxl: 3rem;
+
+            --radius-lg: 14px;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.06);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+/* ============= GLOBAL ============= */
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--color-bg);
+            color: #1f2937;
+        }
+
+/* ============= DASHBOARD ============= */
+        .dashboard-page {
+            min-height: 100vh;
+            padding: var(--space-xl);
+            background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+    }
+
+        .dashboard-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: var(--space-xxl);
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            color: var(--color-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+/* ============= ANALYTICS PAGE ============= */
+        .analytics-controls {
+            display: flex;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .analytics-controls label {
+            display: flex;
+                align-items: center;
+                gap: var(--space-sm);
+                font-weight: 500;
+            }   
+        .analytics-controls select {
+            min-width: 150px;
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px;
+            border: 1px solid var(--color-bg-muted);
+        }
+
+/* GRID */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-lg);
+        }
+
+/* CARD */
+        .analytics-card {
+            background: white;
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-bg-muted);
+        }
+
+        .analytics-card h3 {
+            color: var(--color-primary);
+            margin-bottom: var(--space-md);
+        }
+
+        .analytics-card p {
+            margin-bottom: var(--space-sm);
+        }
+        .analytics-card strong {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+/* SOFT CARD */
+        .analytics-card.soft {
+            background: linear-gradient(135deg, #ffffff 0%, var(--color-bg-secondary) 100%);
+        }	
+	</script>
+  <div class="dashboard-page">
+    <div class="dashboard-container">
+
+      <!-- HEADER -->
+      <header class="dashboard-header">
+        <h1>Trip Analytics</h1>
+        <p>Overview of your trips – on time, delayed & more</p>
+      </header>
+
+      <!-- ANALYTICS CONTROLS -->
+      <section class="analytics-controls">
+        <label>
+          Time Range
+          <select>
+            <option>This Week</option>
+            <option>This Month</option>
+            <option>All Trips</option>
+          </select>
+        </label>
+
+        <label>
+          Transport
+          <select>
+            <option>All</option>
+            <option>Bus</option>
+            <option>Train</option>
+            <option>Flight</option>
+          </select>
+        </label>
+      </section>
+
+      <!-- ANALYTICS GRID -->
+      <section class="analytics-grid">
+
+        <div class="analytics-card">
+          <h3>On Time Trips</h3>
+          <p><strong>65</strong> trips</p>
+          <p>78% of total journeys</p>
+        </div>
+
+        <div class="analytics-card soft">
+          <h3>Delayed Trips</h3>
+          <p><strong>15</strong> trips</p>
+          <p>Average delay: 12 mins</p>
+        </div>
+
+        <div class="analytics-card">
+          <h3>Cancelled Trips</h3>
+          <p><strong>4</strong> trips</p>
+          <p>Mostly due to weather</p>
+        </div>
+
+        <div class="analytics-card soft">
+          <h3>Upcoming Trips</h3>
+          <p><strong>32</strong> planned</p>
+          <p>Next 7 days</p>
+        </div>
+
+        <div class="analytics-card">
+          <h3>Peak Delay Time</h3>
+          <p><strong>Evening (6–9 PM)</strong></p>
+          <p>Plan buffer time</p>
+        </div>
+
+        <div class="analytics-card soft">
+          <h3>Most Used Transport</h3>
+          <p><strong>Train</strong></p>
+          <p>Reliable & frequent</p>
+        </div>
+
+      </section>
+
+    </div>
+  </div>
+
+</body>
+</html>

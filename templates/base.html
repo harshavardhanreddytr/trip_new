@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TripPlanner{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- TP Icon Styles -->
+    <style>
+        .tp-icon {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            width: 40px;
+            height: 40px;
+            background: #6b7455;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            z-index: 1000;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .tp-icon:hover {
+            background: #8b9474;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .tp-icon:active {
+            transform: scale(0.95);
+        }
+
+        /* Ensure content doesn't overlap with fixed TP icon */
+        body {
+            padding-left: 0; /* Let content flow naturally, TP icon is overlay */
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .tp-icon {
+                top: 12px;
+                left: 12px;
+                width: 36px;
+                height: 36px;
+                font-size: 13px;
+            }
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Global TP Icon - Always visible and links to dashboard -->
+    <a href="{{ url_for('dashboard') }}" class="tp-icon" title="Return to Dashboard">TP</a>
+    
+    {% block content %}{% endblock %}
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

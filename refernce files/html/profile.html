@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile – TripPlanner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Inter font (exact style used in reference) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="profile-page">
+
+    <!-- HEADER -->
+    <header class="profile-header">
+        <h1>Profile</h1>
+        <p class="sub">Your identity & control center</p>
+    </header>
+
+    <!-- IDENTITY CARD -->
+    <section class="profile-card identity-card">
+        <div class="avatar">
+            {{ user.name[0]|upper }}
+        </div>
+
+        <div class="identity-info">
+            <h2>{{ user.name }}</h2>
+
+            <div class="member-id">
+                <span>Member ID:</span>
+                <strong>{{ public_id }}</strong>
+                <button onclick="copyText('{{ public_id }}')">Copy ID</button>
+            </div>
+
+            <div class="verified">
+                ✓ Verified Account
+            </div>
+        </div>
+    </section>
+
+    <!-- ADD ME AS FRIEND -->
+    <section class="profile-card qr-card">
+        <h3>Add Me as a Friend</h3>
+
+        <div class="qr-box" id="qrBox">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+        </div>
+
+        <p class="qr-text">
+            Scan to send me a friend request.<br>
+            <span>(I have to approve it)</span>
+        </p>
+
+        <div class="qr-actions">
+            <button class="primary" onclick="toggleQR()">Show QR Code</button>
+            <button class="secondary" onclick="copyText('{{ public_id }}')">Copy Member ID</button>
+        </div>
+    </section>
+
+    <!-- PRIVACY & SAFETY -->
+    <section class="profile-card">
+        <h3>Privacy & Safety</h3>
+
+        <div class="toggle-row">
+            <span>Allow friend requests via QR</span>
+            <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="toggle-row">
+            <span>Allow friend requests via Member ID</span>
+            <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="link-row">
+            <span>Blocked users</span>
+            <a href="#">Manage</a>
+        </div>
+
+        <div class="link-row">
+            <span>Reports</span>
+            <span class="muted">0</span>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="profile-card stats-card">
+        <h3>Your Stats <span class="muted">(Preview)</span></h3>
+
+        <div class="stats-grid">
+            <div>
+                <strong>Trips completed</strong>
+                <span>6</span>
+            </div>
+            <div>
+                <strong>Tasks completed</strong>
+                <span>82%</span>
+            </div>
+            <div>
+                <strong>Avg delay</strong>
+                <span>+6 min</span>
+            </div>
+            <div>
+                <strong>Most used transport</strong>
+                <span>Bike</span>
+            </div>
+        </div>
+
+        <p class="stats-note">You’re improving with every trip.</p>
+    </section>
+
+    <!-- ACCOUNT ACTIONS -->
+    <section class="profile-card actions-card">
+        <a href="/logout" class="btn neutral">Logout</a>
+        <button class="btn danger">Delete Account</button>
+    </section>
+
+</div>
+
+<script>
+function copyText(text) {
+    navigator.clipboard.writeText(text);
+    alert("Copied!");
+}
+</script>
+<script>
+function toggleQR() {
+    const box = document.getElementById("qrBox");
+    box.style.display = box.style.display === "none" ? "block" : "none";
+}
+</script>
+</body>
+</html>

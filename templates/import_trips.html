@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Import Trips – TripPlanner{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page">
+    <div class="dashboard-container">
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <span class="breadcrumb-icon">🏠</span>
+            <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+            <span class="breadcrumb-sep">→</span>
+            <span class="breadcrumb-current">Import Trip</span>
+        </div>
+
+        <header class="dashboard-header">
+            <h1>Import Trip</h1>
+            <p class="sub">Upload itinerary CSV or JSON file</p>
+        </header>
+
+        <section class="import-card">
+            <form action="/import-trip" method="POST" enctype="multipart/form-data" class="import-form">
+                <input type="file" name="trip_file" accept=".csv,.json" required>
+                <button type="submit" class="btn primary">Import Trip</button>
+            </form>
+        </section>
+
+        <!-- Help Section -->
+        <section class="profile-card">
+            <h3>How to Import</h3>
+            <p class="sub">Upload either a CSV or JSON file with your trip data.</p>
+            
+            <h4 style="margin-top: var(--space-lg); margin-bottom: var(--space-md);">📄 CSV Format</h4>
+            <p style="margin-bottom: var(--space-sm);">Required columns:</p>
+            <ul style="margin: var(--space-md) 0; padding-left: var(--space-lg); line-height: 1.8;">
+                <li><strong>trip_name</strong> – Name of your trip (same for all rows)</li>
+                <li><strong>trip_start</strong> – Start date (YYYY-MM-DD, same for all rows)</li>
+                <li><strong>trip_end</strong> – End date (YYYY-MM-DD, same for all rows)</li>
+                <li><strong>day_date</strong> – Date of the day (YYYY-MM-DD)</li>
+                <li><strong>time</strong> – Task time (HH:MM, 24-hour format)</li>
+                <li><strong>title</strong> – Task title</li>
+                <li><strong>description</strong> – Task description (optional)</li>
+                <li><strong>lat</strong> – Latitude (optional)</li>
+                <li><strong>lng</strong> – Longitude (optional)</li>
+            </ul>
+            
+            <h5 style="margin-top: var(--space-md);">CSV Example:</h5>
+            <pre style="background: var(--color-bg-muted); padding: var(--space-md); border-radius: var(--radius-md); overflow-x: auto; margin-top: var(--space-sm); font-size: 0.85em;">
+trip_name,trip_start,trip_end,day_date,time,title,description,lat,lng
+"Trip to Paris",2026-03-15,2026-03-20,2026-03-15,08:00,Flight to Paris,Depart from JFK,48.8566,2.3522
+"Trip to Paris",2026-03-15,2026-03-20,2026-03-15,14:00,Check-in Hotel,Hotel near Eiffel Tower,48.8584,2.2945
+"Trip to Paris",2026-03-15,2026-03-20,2026-03-16,09:00,Visit Louvre,Morning museum tour,48.8606,2.3376
+            </pre>
+            
+            <h4 style="margin-top: var(--space-lg); margin-bottom: var(--space-md);">📋 JSON Format</h4>
+            <h5 style="margin-bottom: var(--space-sm);">JSON Example:</h5>
+            <pre style="background: var(--color-bg-muted); padding: var(--space-md); border-radius: var(--radius-md); overflow-x: auto; margin-top: var(--space-sm); font-size: 0.85em;">
+{
+  "trip_name": "Trip to Paris",
+  "start_date": "2026-03-15",
+  "end_date": "2026-03-20",
+  "days": [
+    {
+      "date": "2026-03-15",
+      "tasks": [
+        {
+          "title": "Flight to Paris",
+          "start_time": "08:00",
+          "end_time": "12:00",
+          "description": "Depart from JFK",
+          "lat": 48.8566,
+          "lng": 2.3522
+        },
+        {
+          "title": "Check-in Hotel",
+          "start_time": "14:00",
+          "end_time": "15:00",
+          "description": "Hotel near Eiffel Tower"
+        }
+      ]
+    },
+    {
+      "date": "2026-03-16",
+      "tasks": [
+        {
+          "title": "Visit Louvre",
+          "start_time": "09:00",
+          "end_time": "12:00",
+          "description": "Morning museum tour"
+        }
+      ]
+    }
+  ]
+}
+            </pre>
+            
+            <div style="margin-top: var(--space-lg); padding: var(--space-md); background: var(--color-warning-bg, #fff3cd); border-radius: var(--radius-md); border-left: 3px solid var(--color-warning, #ffc107);">
+                <strong>💡 Tips:</strong>
+                <ul style="margin: var(--space-sm) 0 0; padding-left: var(--space-lg); line-height: 1.6;">
+                    <li>One trip per file</li>
+                    <li>Tasks are automatically sorted by time within each day</li>
+                    <li>Empty rows are ignored (CSV only)</li>
+                    <li>All dates must be in YYYY-MM-DD format</li>
+                    <li>All times must be in HH:MM (24-hour) format</li>
+                    <li>Put commas in CSV text fields inside quotes: "Text, with commas"</li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+</div>
+{% endblock %}

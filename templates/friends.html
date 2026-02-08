@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Friends – TripPlanner{% endblock %}
+
+{% block content %}
+
+<div class="friends-page">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <span class="breadcrumb-icon">🏠</span>
+        <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+        <span class="breadcrumb-sep">→</span>
+        <span class="breadcrumb-current">Friends</span>
+    </div>
+
+    <!-- HEADER -->
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <header class="page-header">
+        <h1>Friends</h1>
+        <p class="sub">People you trust to travel with</p>
+    </header>
+
+    <!-- TOP ACTION BAR -->
+    <section class="friends-actions">
+
+        <div class="search-box">
+            <input
+                type="text"
+                id="friendSearch"
+                placeholder="Search friends..."
+                onkeyup="filterFriends()"
+            >
+        </div>
+
+        <a href="#addFriend" class="btn primary">
+            + Add Friend
+        </a>
+    </section>
+
+    <!-- ADD FRIEND -->
+    <section id="addFriend" class="add-friend-form">
+        <h3>Add Friend</h3>
+
+        <!-- User's own ID display -->
+        <div class="member-id">
+            <span>Your Member ID:</span>
+            <strong>{{ public_id }}</strong>
+            <button class="btn small neutral" onclick="copyText('{{ public_id }}')">Copy ID</button>
+        </div>
+        <p class="hint">Share this ID with friends so they can add you!</p>
+
+        <form action="/friends/add" method="POST">
+            <input
+                type="text"
+                name="friend_id"
+                placeholder="Enter Member ID"
+                required
+            >
+            <button type="submit" class="btn primary">Send Request</button>
+        </form>
+        <div class="add-friend-footer">
+            <span>or</span>
+            <a href="/profile" class="text-link">Scan QR</a>
+        </div>
+        <p class="hint">They must accept before becoming friends.</p>
+    </section>
+
+    <!-- PENDING REQUESTS -->
+    <section class="card">
+        <div class="card-header">
+            <h3>Pending Requests ({{ pending|length }})</h3>
+
+            {% if pending %}
+                <a href="/friends/clear-requests" class="text-link">Clear all</a>
+            {% endif %}
+        </div>
+
+        {% if pending %}
+            {% for req in pending %}
+                <div class="friend-row">
+                    <div class="friend-info">
+                        <div class="avatar small">{{ req.sender_name[0]|upper }}</div>
+                        <div>
+                            <strong>{{ req.sender_name }}</strong>
+                            <span class="muted">Member ID: {{ req.sender_id }}</span>
+                        </div>
+                    </div>
+
+                    <div class="friend-actions">
+                        <a href="/friends/accept/{{ req.sender_id }}" class="btn small primary">Accept</a>
+                        <a href="/friends/reject/{{ req.sender_id }}" class="btn small danger">Decline</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="empty">No pending requests.</p>
+        {% endif %}
+    </section>
+
+    <!-- FRIEND LIST -->
+    <section class="card">
+        <div class="card-header">
+            <h3>Your Friends ({{ friends|length }})</h3>
+
+            <select id="friendFilter">
+                <option value="all">All friends</option>
+                <option value="recent">Recently added</option>
+            </select>
+        </div>
+
+        {% for f in friends %}
+            <div class="friend-row friend-item">
+                <div class="friend-info">
+                    <div class="avatar small">{{ f.name[0]|upper }}</div>
+                    <div>
+                        <strong>{{ f.name }}</strong>
+                        <span class="muted">Member ID: {{ f.id }}</span>
+                    </div>
+                </div>
+
+                <div class="friend-actions">
+                    <a href="#" class="btn small neutral">Chat</a>
+
+                    <div class="dropdown">
+                        <button class="dropdown-toggle">⋮</button>
+                        <div class="dropdown-menu">
+                            <a href="#" onclick="viewProfile('{{ f.id }}')">View Profile</a>
+                            <a href="#" onclick="removeFriend('{{ f.id }}')">Remove Friend</a>
+                            <a href="#" onclick="blockUser('{{ f.id }}')">Block User</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p class="empty">No friends yet.</p>
+        {% endfor %}
+    </section>
+
+</div>
+
+<script>
+function filterFriends() {
+    const q = document.getElementById("friendSearch").value.toLowerCase();
+    document.querySelectorAll(".friend-item").forEach(el => {
+        el.style.display = el.innerText.toLowerCase().includes(q)
+            ? "flex"
+            : "none";
+    });
+}
+
+function viewProfile(friendId) {
+    window.location.href = `/user/${friendId}`;
+}
+
+function removeFriend(friendId) {
+    if (confirm('Remove this friend?')) {
+        fetch(`/friends/remove/${friendId}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function blockUser(friendId) {
+    if (confirm('Block this user? They will no longer be able to send you friend requests.')) {
+        fetch(`/friends/block/${friendId}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Create a temporary success message
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.style.backgroundColor = '#10b981';
+        setTimeout(function() {
+            btn.textContent = originalText;
+            btn.style.backgroundColor = '';
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

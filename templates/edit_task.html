@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Task – TripPlanner{% endblock %}
+
+{% block content %}
+
+<div class="edit-task-page">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <span class="breadcrumb-icon">🏠</span>
+        <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+        <span class="breadcrumb-sep">→</span>
+        <a href="/trips" class="breadcrumb-link">Trips</a>
+        <span class="breadcrumb-sep">→</span>
+        <a href="/trip/{{ trip.id }}" class="breadcrumb-link">{{ trip.name }}</a>
+        <span class="breadcrumb-sep">→</span>
+        <a href="/trip/{{ trip.id }}/day/{{ day.id }}" class="breadcrumb-link">{{ day.date }}</a>
+        <span class="breadcrumb-sep">→</span>
+        <span class="breadcrumb-current">Edit Task</span>
+    </div>
+
+    <header class="edit-header">
+        <h1>Edit Task</h1>
+        <p>{{ trip.name }} · {{ day.date }}</p>
+    </header>
+
+    <form method="POST" class="edit-form">
+
+        <label>
+            Task Title
+            <input type="text" name="title"
+                   value="{{ task.title }}" required>
+        </label>
+
+        <label>
+            Start Time
+            <input type="time" name="start_time"
+                   value="{{ task.start_time }}" required>
+        </label>
+
+        <label>
+            End Time
+            <input type="time" name="end_time"
+                   value="{{ task.end_time }}" required>
+        </label>
+
+        <label>
+            Description (Optional)
+            <textarea name="description" rows="3" placeholder="Additional details about this task...">{{ task.description or '' }}</textarea>
+        </label>
+
+        <label>
+            Latitude (Optional)
+            <input type="number" step="any" name="lat"
+                   value="{{ task.lat or '' }}">
+        </label>
+
+        <label>
+            Longitude (Optional)
+            <input type="number" step="any" name="lng"
+                   value="{{ task.lng or '' }}">
+        </label>
+
+        <button type="submit" class="btn primary">Save Changes</button>
+
+        <a class="cancel-link"
+           href="/trip/{{ trip.id }}/day/{{ day.id }}">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Get user's current location for lat/lng
+function getCurrentLocation() {
+    if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            document.querySelector('input[name="lat"]').value = position.coords.latitude.toFixed(6);
+            document.querySelector('input[name="lng"]').value = position.coords.longitude.toFixed(6);
+        });
+    }
+}
+
+// Add button to get current location
+document.querySelector('input[name="lat"]').insertAdjacentHTML('afterend', 
+    '<button type="button" onclick="getCurrentLocation()" style="margin-top: 0.5rem;" class="btn small neutral">Use Current Location</button>'
+);
+
+// Show current location on map if available
+function showOnMap() {
+    const lat = document.querySelector('input[name="lat"]').value;
+    const lng = document.querySelector('input[name="lng"]').value;
+    
+    if (lat && lng) {
+        const url = `https://www.google.com/maps?q=${lat},${lng}`;
+        window.open(url, '_blank');
+    }
+}
+
+// Add button to view on map if coordinates exist
+const latInput = document.querySelector('input[name="lat"]');
+const lngInput = document.querySelector('input[name="lng"]');
+
+function updateMapButton() {
+    const existingButton = document.getElementById('map-button');
+    if (existingButton) {
+        existingButton.remove();
+    }
+    
+    if (latInput.value && lngInput.value) {
+        lngInput.insertAdjacentHTML('afterend', 
+            '<button type="button" id="map-button" onclick="showOnMap()" style="margin-top: 0.5rem;" class="btn small ghost">🗺️ View on Map</button>'
+        );
+    }
+}
+
+latInput.addEventListener('input', updateMapButton);
+lngInput.addEventListener('input', updateMapButton);
+
+// Initialize map button
+updateMapButton();
+</script>
+{% endblock %}

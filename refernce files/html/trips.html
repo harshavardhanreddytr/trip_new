@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Trips - Travel Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #fafaf8;
+            color: #2d2d2d;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+
+        /* Header Section */
+        .header {
+            margin-bottom: 48px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1a1a1a;
+            letter-spacing: -0.02em;
+        }
+
+        .import-button {
+            padding: 10px 20px;
+            background-color: #ffffff;
+            color: #2d2d2d;
+            border: 1px solid #d4d4d0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .import-button:hover {
+            background-color: #f5f5f3;
+            border-color: #8b9456;
+        }
+
+        .import-button:focus {
+            outline: 2px solid #8b9456;
+            outline-offset: 2px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #6b6b6b;
+            font-weight: 400;
+        }
+
+        /* Trips List */
+        .trips-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .trip-card {
+            background-color: #ffffff;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border-left: 3px solid transparent;
+        }
+
+        .trip-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .trip-card:focus {
+            outline: 2px solid #8b9456;
+            outline-offset: 2px;
+        }
+
+        .trip-card:active {
+            transform: translateY(0);
+        }
+
+        /* Trip Status Variations */
+        .trip-card.ongoing {
+            border-left-color: #8b9456;
+            background-color: #fdfdf9;
+        }
+
+        .trip-card.past {
+            opacity: 0.65;
+        }
+
+        .trip-card.past:hover {
+            opacity: 0.85;
+        }
+
+        .trip-card.upcoming {
+            border-left-color: #e8e8e4;
+        }
+
+        .trip-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .trip-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            letter-spacing: -0.01em;
+            flex: 1;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 7px;
+            flex-shrink: 0;
+        }
+
+        .trip-card.ongoing .status-indicator {
+            background-color: #8b9456;
+            box-shadow: 0 0 0 3px rgba(139, 148, 86, 0.15);
+        }
+
+        .trip-card.upcoming .status-indicator {
+            background-color: #d4d4d0;
+        }
+
+        .trip-card.past .status-indicator {
+            background-color: #b8b8b4;
+        }
+
+        .trip-dates {
+            font-size: 15px;
+            color: #6b6b6b;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .trip-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #8b8b8b;
+        }
+
+        .trip-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trip-meta-item::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background-color: #c4c4c0;
+            border-radius: 50%;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 24px;
+        }
+
+        .empty-illustration {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            background-color: #f5f5f3;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #d4d4d0;
+        }
+
+        .empty-illustration svg {
+            width: 48px;
+            height: 48px;
+            color: #b8b8b4;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2d2d;
+            margin-bottom: 8px;
+        }
+
+        .empty-description {
+            font-size: 15px;
+            color: #6b6b6b;
+            margin-bottom: 24px;
+        }
+
+        .empty-button {
+            padding: 12px 28px;
+            background-color: #8b9456;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .empty-button:hover {
+            background-color: #7a8349;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 148, 86, 0.25);
+        }
+
+        .empty-button:focus {
+            outline: 2px solid #8b9456;
+            outline-offset: 2px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 640px) {
+            .container {
+                padding: 32px 20px;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .import-button {
+                text-align: center;
+            }
+
+            .trip-card {
+                padding: 20px;
+            }
+
+            .trip-name {
+                font-size: 18px;
+            }
+
+            .trip-header {
+                flex-direction: column-reverse;
+                gap: 12px;
+            }
+
+            .status-indicator {
+                margin-top: 0;
+            }
+
+            .empty-state {
+                padding: 60px 20px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .trip-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="header-top">
+                <h1 class="page-title">My Trips</h1>
+                <a href="/import" class="import-button">Import Trip</a>
+            </div>
+            <p class="subtitle">Every journey you planned, in one place.</p>
+        </header>
+
+        <!-- Trips List -->
+        <div class="trips-list">
+            <!-- Ongoing Trip -->
+            <a href="/trip/1" class="trip-card ongoing">
+                <div class="trip-header">
+                    <h3 class="trip-name">Barcelona Spring Escape</h3>
+                    <span class="status-indicator"></span>
+                </div>
+                <div class="trip-dates">1 Feb 2026 → 7 Feb 2026</div>
+                <div class="trip-meta">
+                    <span class="trip-meta-item">7 days</span>
+                    <span class="trip-meta-item">3 friends</span>
+                </div>
+            </a>
+
+            <!-- Upcoming Trip -->
+            <a href="/trip/2" class="trip-card upcoming">
+                <div class="trip-header">
+                    <h3 class="trip-name">Tokyo Cherry Blossom Tour</h3>
+                    <span class="status-indicator"></span>
+                </div>
+                <div class="trip-dates">20 Mar 2026 → 28 Mar 2026</div>
+                <div class="trip-meta">
+                    <span class="trip-meta-item">9 days</span>
+                    <span class="trip-meta-item">Solo</span>
+                </div>
+            </a>
+
+            <!-- Upcoming Trip -->
+            <a href="/trip/3" class="trip-card upcoming">
+                <div class="trip-header">
+                    <h3 class="trip-name">Iceland Northern Lights Adventure</h3>
+                    <span class="status-indicator"></span>
+                </div>
+                <div class="trip-dates">15 Sep 2026 → 22 Sep 2026</div>
+                <div class="trip-meta">
+                    <span class="trip-meta-item">8 days</span>
+                    <span class="trip-meta-item">2 friends</span>
+                </div>
+            </a>
+
+            <!-- Past Trip -->
+            <a href="/trip/4" class="trip-card past">
+                <div class="trip-header">
+                    <h3 class="trip-name">Paris Winter Getaway</h3>
+                    <span class="status-indicator"></span>
+                </div>
+                <div class="trip-dates">10 Dec 2025 → 15 Dec 2025</div>
+                <div class="trip-meta">
+                    <span class="trip-meta-item">6 days</span>
+                    <span class="trip-meta-item">4 friends</span>
+                </div>
+            </a>
+
+            <!-- Past Trip -->
+            <a href="/trip/5" class="trip-card past">
+                <div class="trip-header">
+                    <h3 class="trip-name">Amalfi Coast Summer</h3>
+                    <span class="status-indicator"></span>
+                </div>
+                <div class="trip-dates">8 Aug 2025 → 18 Aug 2025</div>
+                <div class="trip-meta">
+                    <span class="trip-meta-item">11 days</span>
+                    <span class="trip-meta-item">Solo</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Empty State (Hidden by default, remove trips-list above to see this) -->
+        <!--
+        <div class="empty-state">
+            <div class="empty-illustration">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="7.5 4.21 12 6.81 16.5 4.21"></polyline>
+                    <polyline points="7.5 19.79 7.5 14.6 3 12"></polyline>
+                    <polyline points="21 12 16.5 14.6 16.5 19.79"></polyline>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+            </div>
+            <h2 class="empty-title">No trips yet</h2>
+            <p class="empty-description">Import one to get started.</p>
+            <a href="/import" class="empty-button">Import Trip</a>
+        </div>
+        -->
+    </div>
+</body>
+</html>

@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block title %}Trips – TripPlanner{% endblock %}
+
+{% block extra_head %}
+<style>
+.trip-item-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.delete-trip-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    font-size: 0.875rem;
+    line-height: 1;
+    z-index: 10;
+}
+
+.trip-item:hover .delete-trip-btn {
+    opacity: 1;
+}
+
+.delete-trip-btn:hover {
+    background: #b91c1c;
+}
+
+.trips-page {
+    min-height: 100vh;
+    background: #faf9f7;
+}
+
+.trips-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.breadcrumb-icon {
+    font-size: 1rem;
+}
+
+.breadcrumb-link {
+    color: #6b7455;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-link:hover {
+    color: #4b5563;
+}
+
+.breadcrumb-current {
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.trips-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.header-content h1 {
+    font-size: 2.5rem;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+}
+
+.header-content p {
+    color: #6b7280;
+    font-size: 1.125rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.btn.primary {
+    background: #6b7455;
+    color: white;
+}
+
+.btn.primary:hover {
+    background: #5a6247;
+}
+
+/* Ensure trip items have consistent heights */
+.trip-item {
+    display: flex;
+    flex-direction: column;
+    min-height: 160px;
+}
+
+.trip-details {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Additional layout fixes */
+.trips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.trip-item {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.trip-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #6b7455;
+}
+
+.trip-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.trip-icon {
+    font-size: 1.5rem;
+}
+
+.trip-item h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.trip-dates {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+.trip-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.trip-avatars {
+    display: flex;
+    align-items: center;
+    gap: -0.5rem;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: white;
+    border: 2px solid white;
+    margin-left: -8px;
+}
+
+.avatar:first-child {
+    margin-left: 0;
+}
+
+.avatar-1 { background: #6b7455; }
+.avatar-2 { background: #8b5cf6; }
+.avatar-3 { background: #06b6d4; }
+
+.avatar-count {
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    margin-left: 0.5rem;
+}
+
+.trip-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge-active {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.empty-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.empty-text {
+    margin-bottom: 2rem;
+}
+
+.btn.secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn.secondary:hover {
+    background: #e5e7eb;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="trips-container">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <span class="breadcrumb-icon">🏠</span>
+        <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+        <span class="breadcrumb-sep">→</span>
+        <span class="breadcrumb-current">My Trips</span>
+    </div>
+
+    <!-- Header -->
+    <header class="trips-header">
+        <div class="header-content">
+            <h1 class="header-title">My Trips</h1>
+            <p class="header-subtitle">View and manage your journeys</p>
+        </div>
+        <div class="header-actions">
+            <a href="/import-trips" class="btn primary">+ Import Trip</a>
+        </div>
+    </header>
+
+    <!-- Controls -->
+    <div class="trips-controls">
+        <div class="control-group">
+            <label for="filter-status">Filter:</label>
+            <select id="filter-status" class="filter-select">
+                <option value="all">All trips</option>
+                <option value="active">Active</option>
+                <option value="past">Past</option>
+                <option value="upcoming">Upcoming</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Trips Grid -->
+    <div class="trips-grid">
+        {% if trips %}
+            {% for trip in trips %}
+                <div class="trip-item-wrapper" data-start-date="{{ trip.start_date }}" data-end-date="{{ trip.end_date }}">
+                    <a href="/trip/{{ trip.id }}" class="trip-item">
+                        <div class="trip-item-header">
+                            <div class="trip-icon">✈️</div>
+                            <div class="trip-title-group">
+                                <h2 class="trip-title">{{ trip.name }}</h2>
+                                <p class="trip-dates">{{ trip.start_date }} – {{ trip.end_date }}</p>
+                                {% if trip.role %}
+                                    <span class="trip-role badge-member">Member</span>
+                                {% else %}
+                                    <span class="trip-role badge-owner">Owner</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="trip-details">
+                            <p class="trip-description">Explore and plan your adventure</p>
+                            <div class="trip-meta">
+                                <div class="trip-avatars">
+                                    <div class="avatar avatar-1">Y</div>
+                                    <div class="avatar avatar-2">O</div>
+                                    <div class="avatar avatar-3">U</div>
+                                    <span class="avatar-count">+2</span>
+                                </div>
+                                <span class="trip-status badge-active">Active</span>
+                            </div>
+                        </div>
+
+                        <div class="trip-hover-effect"></div>
+                    </a>
+                    
+                    {% if not trip.role %}
+                    <!-- Only show delete button for trip owners -->
+                    <button class="delete-trip-btn" onclick="confirmDeleteTrip('{{ trip.id }}', '{{ trip.name }}')"
+                            title="Delete trip">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18"/>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c0 1 1 2 1 2v2"/>
+                            <line x1="10" y1="11" x2="10" y2="17"/>
+                            <line x1="14" y1="11" x2="14" y2="17"/>
+                        </svg>
+                    </button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <p class="empty-icon">✨</p>
+                <h3 class="empty-title">No trips yet</h3>
+                <p class="empty-text">Start planning your next adventure</p>
+                <a href="/import-trips" class="btn secondary">Import Your First Trip</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function confirmDeleteTrip(tripId, tripName) {
+    if (confirm(`Are you sure you want to delete "${tripName}"?\n\nThis action cannot be reversed and will permanently delete:\n• All trip data\n• All days and tasks\n• All member assignments\n• All location data\n\nClick OK to confirm deletion.`)) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/trip/${tripId}/delete`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Trip filtering functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const filterSelect = document.getElementById('filter-status');
+    const tripItems = document.querySelectorAll('.trip-item-wrapper');
+    
+    if (filterSelect) {
+        filterSelect.addEventListener('change', function() {
+            const filterValue = this.value;
+            const today = new Date();
+            
+            tripItems.forEach(function(tripWrapper) {
+                const startDateStr = tripWrapper.dataset.startDate;
+                const endDateStr = tripWrapper.dataset.endDate;
+                
+                if (!startDateStr || !endDateStr) {
+                    tripWrapper.style.display = 'block';
+                    return;
+                }
+                
+                const startDate = new Date(startDateStr);
+                const endDate = new Date(endDateStr);
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
+                
+                let shouldShow = false;
+                
+                switch (filterValue) {
+                    case 'all':
+                        shouldShow = true;
+                        break;
+                    case 'past':
+                        shouldShow = endDate < today;
+                        break;
+                    case 'active':
+                        shouldShow = startDate <= today && endDate >= today;
+                        break;
+                    case 'upcoming':
+                        shouldShow = startDate > today;
+                        break;
+                }
+                
+                tripWrapper.style.display = shouldShow ? 'block' : 'none';
+            });
+            
+            // Show/hide empty state
+            const visibleTrips = Array.from(tripItems).filter(item => item.style.display !== 'none');
+            const emptyState = document.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.style.display = visibleTrips.length === 0 ? 'block' : 'none';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

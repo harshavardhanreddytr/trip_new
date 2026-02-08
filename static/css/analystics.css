@@ -1,0 +1,107 @@
+/* ============= VARIABLES ============= */
+:root {
+  --color-primary: #2563eb;
+  --color-bg: #f8fafc;
+  --color-bg-secondary: #eef2ff;
+  --color-bg-muted: #e5e7eb;
+
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-xxl: 3rem;
+
+  --radius-lg: 14px;
+
+  --shadow-sm: 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+/* ============= GLOBAL ============= */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--color-bg);
+  color: #1f2937;
+}
+
+/* ============= DASHBOARD ============= */
+.dashboard-page {
+  min-height: 100vh;
+  padding: var(--space-xl);
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+}
+
+.dashboard-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: var(--space-xxl);
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  margin-bottom: var(--space-sm);
+}
+
+/* ============= ANALYTICS PAGE ============= */
+.analytics-controls {
+  display: flex;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.analytics-controls label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-weight: 500;
+}
+
+.analytics-controls select {
+  min-width: 150px;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-bg-muted);
+}
+
+/* GRID */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-lg);
+}
+
+/* CARD */
+.analytics-card {
+  background: white;
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-bg-muted);
+}
+
+.analytics-card h3 {
+  color: var(--color-primary);
+  margin-bottom: var(--space-md);
+}
+
+.analytics-card p {
+  margin-bottom: var(--space-sm);
+}
+
+.analytics-card strong {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* SOFT CARD */
+.analytics-card.soft {
+  background: linear-gradient(135deg, #ffffff 0%, var(--color-bg-secondary) 100%);
+}

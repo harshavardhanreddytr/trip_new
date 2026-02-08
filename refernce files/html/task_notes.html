@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Notes - Travel Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --olive-50: #f8f9f5;
+            --olive-100: #e8eade;
+            --olive-200: #d4d9c5;
+            --olive-300: #b8c1a3;
+            --olive-400: #9ba882;
+            --olive-500: #7d8f63;
+            --olive-600: #66754f;
+            --olive-700: #4f5a3d;
+            --olive-800: #3a4229;
+            --olive-900: #2a3020;
+            
+            --cream: #fdfcf8;
+            --warm-white: #faf8f3;
+            --text-primary: #2a3020;
+            --text-secondary: #5a6447;
+            --text-muted: #8a9178;
+            
+            --shadow-sm: 0 1px 3px rgba(42, 48, 32, 0.08);
+            --shadow-md: 0 4px 12px rgba(42, 48, 32, 0.1);
+            --shadow-lg: 0 8px 24px rgba(42, 48, 32, 0.12);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, var(--warm-white), var(--olive-50));
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            padding: 24px 0 16px;
+            margin-bottom: 24px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--olive-600);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px 12px 8px 8px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            margin-bottom: 16px;
+        }
+
+        .back-button:hover {
+            background: var(--olive-100);
+            color: var(--olive-700);
+        }
+
+        .back-arrow {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .page-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        /* Task Context Strip */
+        .task-context {
+            background: var(--olive-100);
+            border: 1px solid var(--olive-200);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .task-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .task-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .task-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .task-meta-icon {
+            opacity: 0.7;
+        }
+
+        /* Notes Editor */
+        .notes-editor-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--olive-100);
+        }
+
+        .editor-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            min-height: 300px;
+            border: 2px solid var(--olive-200);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text-primary);
+            background: var(--cream);
+            resize: vertical;
+            transition: all 0.2s ease;
+        }
+
+        .notes-textarea:focus {
+            outline: none;
+            border-color: var(--olive-500);
+            box-shadow: 0 0 0 3px rgba(125, 143, 99, 0.15);
+            background: white;
+        }
+
+        .notes-textarea::placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .editor-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .last-saved {
+            font-style: italic;
+        }
+
+        .char-count {
+            opacity: 0.8;
+        }
+
+        /* History Section */
+        .history-section {
+            margin-bottom: 32px;
+        }
+
+        .history-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.6;
+        }
+
+        .history-timeline {
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .history-timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: var(--olive-200);
+        }
+
+        .history-item {
+            position: relative;
+            margin-bottom: 20px;
+            background: white;
+            border: 1px solid var(--olive-150);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .history-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 20px;
+            width: 8px;
+            height: 8px;
+            background: var(--olive-500);
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px var(--olive-200);
+        }
+
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .history-timestamp {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .history-author {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .history-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            background: var(--olive-50);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--olive-300);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .history-item.expanded .history-content {
+            max-height: 500px;
+            margin-top: 8px;
+        }
+
+        .history-toggle {
+            background: none;
+            border: none;
+            color: var(--olive-600);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .history-toggle:hover {
+            background: var(--olive-100);
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid var(--olive-200);
+            padding: 16px 20px;
+            box-shadow: 0 -4px 12px rgba(42, 48, 32, 0.08);
+            z-index: 100;
+        }
+
+        .action-bar-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--olive-600);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--olive-700);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: var(--olive-300);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-secondary);
+            border: 1px solid var(--olive-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--olive-50);
+            border-color: var(--olive-400);
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .notes-textarea {
+                min-height: 250px;
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+
+            .task-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .action-bar-inner {
+                flex-direction: column-reverse;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .history-timeline {
+                padding-left: 24px;
+            }
+
+            .editor-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+
+        /* Smooth interactions */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <button class="back-button" onclick="history.back()">
+                <span class="back-arrow">←</span>
+                <span>Back</span>
+            </button>
+            <h1 class="page-title">Task Notes</h1>
+            <p class="page-subtitle">Anything you want to remember about this task.</p>
+        </header>
+
+        <!-- Task Context Strip -->
+        <div class="task-context">
+            <div class="task-title">Visit Musée d'Orsay</div>
+            <div class="task-meta">
+                <div class="task-meta-item">
+                    <span class="task-meta-icon">🕐</span>
+                    <span>10:00 AM → 1:00 PM</span>
+                </div>
+                <div class="task-meta-item">
+                    <span class="task-meta-icon">📍</span>
+                    <span>1 Rue de la Légion d'Honneur, Paris</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Editor -->
+        <section class="notes-editor-section">
+            <label class="editor-label" for="notes">Your Notes</label>
+            <textarea 
+                id="notes" 
+                class="notes-textarea" 
+                placeholder="Parking is limited after 9am. Carry cash for the gift shop. The Impressionist gallery on the 5th floor is absolutely worth it…"
+                oninput="handleNotesChange()"
+            >Pre-book tickets online to skip the queue. The museum gets crowded after 11am, especially on weekends.
+
+Impressionist collection is on the top floor - don't miss Monet's water lilies and Renoir's Dance at Le Moulin de la Galette.
+
+There's a nice café on the middle floor with a view through the clock window. Great spot for a break.
+
+Note: Museum is closed on Mondays!</textarea>
+            
+            <div class="editor-footer">
+                <span class="last-saved">Last saved 2 hours ago</span>
+                <span class="char-count"><span id="charCount">0</span> characters</span>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section class="history-section">
+            <h2 class="history-header">
+                <svg class="history-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Edit History
+            </h2>
+            
+            <div class="history-timeline">
+                <div class="history-item" id="history-1">
+                    <div class="history-meta">
+                        <span class="history-timestamp">Today at 2:30 PM</span>
+                        <span class="history-author">Edited by You</span>
+                    </div>
+                    <button class="history-toggle" onclick="toggleHistory('history-1')">Show changes</button>
+                    <div class="history-content">
+                        Added note about café with clock window view. Updated crowd warning to mention weekends specifically.
+                    </div>
+                </div>
+
+                <div class="history-item" id="history-2">
+                    <div class="history-meta">
+                        <span class="history-timestamp">Yesterday at 9:15 AM</span>
+                        <span class="history-author">Edited by You</span>
+                    </div>
+                    <button class="history-toggle" onclick="toggleHistory('history-2')">Show changes</button>
+                    <div class="history-content">
+                        Pre-book tickets online to skip the queue. The museum gets crowded after 11am.
+
+Impressionist collection is on the top floor - don't miss Monet's water lilies.
+
+Note: Museum is closed on Mondays!
+                    </div>
+                </div>
+
+                <div class="history-item" id="history-3">
+                    <div class="history-meta">
+                        <span class="history-timestamp">Jan 28 at 4:20 PM</span>
+                        <span class="history-author">Edited by You</span>
+                    </div>
+                    <button class="history-toggle" onclick="toggleHistory('history-3')">Show changes</button>
+                    <div class="history-content">
+                        Check opening hours. Closed on Mondays!
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <div class="action-bar-inner">
+            <button class="btn btn-secondary" onclick="handleCancel()">Cancel</button>
+            <button class="btn btn-primary" id="saveBtn" disabled onclick="handleSave()">Save Notes</button>
+        </div>
+    </div>
+
+    <script>
+        // Track original content
+        const originalNotes = document.getElementById('notes').value;
+        let hasChanges = false;
+
+        // Initialize character count
+        updateCharCount();
+
+        function handleNotesChange() {
+            const textarea = document.getElementById('notes');
+            const saveBtn = document.getElementById('saveBtn');
+            
+            hasChanges = textarea.value !== originalNotes;
+            saveBtn.disabled = !hasChanges;
+            
+            updateCharCount();
+        }
+
+        function updateCharCount() {
+            const textarea = document.getElementById('notes');
+            const charCount = document.getElementById('charCount');
+            charCount.textContent = textarea.value.length;
+        }
+
+        function handleSave() {
+            // Simulate save
+            alert('Notes saved successfully!');
+            // In real app: send to backend, update timestamp, add to history
+            location.reload(); // Simulate navigation back
+        }
+
+        function handleCancel() {
+            if (hasChanges) {
+                if (confirm('You have unsaved changes. Are you sure you want to cancel?')) {
+                    history.back();
+                }
+            } else {
+                history.back();
+            }
+        }
+
+        function toggleHistory(itemId) {
+            const item = document.getElementById(itemId);
+            const button = item.querySelector('.history-toggle');
+            const isExpanded = item.classList.contains('expanded');
+            
+            if (isExpanded) {
+                item.classList.remove('expanded');
+                button.textContent = 'Show changes';
+            } else {
+                item.classList.add('expanded');
+                button.textContent = 'Hide changes';
+            }
+        }
+
+        // Auto-resize textarea
+        const textarea = document.getElementById('notes');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.max(300, this.scrollHeight) + 'px';
+        });
+    </script>
+</body>
+</html>

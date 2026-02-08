@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics – TripPlanner{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page">
+    <div class="dashboard-container">
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <span class="breadcrumb-icon">🏠</span>
+            <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+            <span class="breadcrumb-sep">→</span>
+            <span class="breadcrumb-current">Analytics</span>
+        </div>
+
+        <!-- HEADER -->
+        <header class="dash-header">
+            <h1>Analytics</h1>
+            <p>Gentle insights to help you travel better</p>
+        </header>
+
+        <!-- ANALYTICS CONTROLS -->
+        <section class="analytics-controls">
+            <label>
+                View:
+                <select id="analyticsScope" onchange="loadAnalytics()">
+                    <option value="overall">Overall</option>
+                    <option value="trip">Trip-wise</option>
+                    <option value="day">Day-wise</option>
+                </select>
+            </label>
+
+            <select id="tripSelect" onchange="loadAnalytics()" style="display:none;">
+                {% for trip in trips %}
+                <option value="{{ trip.id }}">{{ trip.name }}</option>
+                {% endfor %}
+            </select>
+
+            <select id="daySelect" onchange="loadAnalytics()" style="display:none;"></select>
+        </section>
+
+        <!-- ANALYTICS CARDS -->
+        <section id="analyticsCards" class="analytics-grid">
+            <!-- injected by JS -->
+        </section>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function loadAnalytics() {
+    const scope = document.getElementById("analyticsScope").value;
+    const tripSel = document.getElementById("tripSelect");
+    const daySel = document.getElementById("daySelect");
+
+    let url = `/analytics?scope=${scope}`;
+
+    tripSel.style.display = "none";
+    daySel.style.display = "none";
+
+    if (scope === "trip") {
+        tripSel.style.display = "block";
+        if (tripSel.value) {
+            url += `&trip_id=${tripSel.value}`;
+        }
+    }
+
+    if (scope === "day") {
+        tripSel.style.display = "block";
+        daySel.style.display = "block";
+        if (daySel.value) {
+            url += `&day_id=${daySel.value}`;
+        }
+    }
+
+    fetch(url)
+        .then(r => r.json())
+        .then(renderAnalytics)
+        .catch(error => {
+            console.error('Analytics error:', error);
+            document.getElementById('analyticsCards').innerHTML = '<p>Unable to load analytics data.</p>';
+        });
+}
+
+function renderAnalytics(data) {
+    const box = document.getElementById("analyticsCards");
+    box.innerHTML = "";
+
+    if (!data.tasks) {
+        box.innerHTML = '<div class="empty-state"><p class="empty-icon">📊</p><h3 class="empty-title">No analytics available yet</h3><p class="empty-text">Complete some tasks to see insights</p></div>';
+        return;
+    }
+
+    box.innerHTML += `
+        <div class="analytics-card">
+            <h3>Tasks Overview</h3>
+            <p>Total: <strong>${data.tasks.total}</strong></p>
+            <p>Completed: ${data.tasks.completed}</p>
+            <p>Skipped: ${data.tasks.skipped}</p>
+            <p>Pending: ${data.tasks.unanswered}</p>
+        </div>
+    `;
+
+    if (data.average_delay_minutes !== undefined) {
+        const delayClass = data.average_delay_minutes > 10 ? '' : 'soft';
+        box.innerHTML += `
+            <div class="analytics-card ${delayClass}">
+                <h3>Average Delay</h3>
+                <p><strong>${data.average_delay_minutes} minutes</strong></p>
+                <span class="hint">Delays are normal. Planning improves with time 🌱</span>
+            </div>
+        `;
+    }
+
+    if (data.delay_windows) {
+        box.innerHTML += `
+            <div class="analytics-card">
+                <h3>When Delays Happen</h3>
+                <p>Morning: ${data.delay_windows.morning} tasks</p>
+                <p>Afternoon: ${data.delay_windows.afternoon} tasks</p>
+                <p>Evening: ${data.delay_windows.evening} tasks</p>
+            </div>
+        `;
+    }
+
+    if (data.completion_rate !== undefined) {
+        box.innerHTML += `
+            <div class="analytics-card">
+                <h3>Completion Rate</h3>
+                <p><strong>${Math.round(data.completion_rate * 100)}%</strong></p>
+                <span class="hint">Keep up the great work! 💪</span>
+            </div>
+        `;
+    }
+
+    if (data.most_active_time) {
+        box.innerHTML += `
+            <div class="analytics-card soft">
+                <h3>Most Active Time</h3>
+                <p><strong>${data.most_active_time}</strong></p>
+                <span class="hint">When you get the most done</span>
+            </div>
+        `;
+    }
+
+    if (data.travel_patterns) {
+        box.innerHTML += `
+            <div class="analytics-card">
+                <h3>Travel Patterns</h3>
+                <p>Most used transport: <strong>${data.travel_patterns.most_used}</strong></p>
+                <p>Average distance: ${data.travel_patterns.avg_distance}km</p>
+                <span class="hint">Understanding your travel style</span>
+            </div>
+        `;
+    }
+}
+
+// Load analytics on page load
+document.addEventListener('DOMContentLoaded', loadAnalytics);
+</script>
+{% endblock %}

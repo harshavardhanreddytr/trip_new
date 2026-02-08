@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Profile – TripPlanner{% endblock %}
+
+{% block content %}
+
+<div class="profile-page">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <span class="breadcrumb-icon">🏠</span>
+        <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+        <span class="breadcrumb-sep">→</span>
+        <span class="breadcrumb-current">Profile</span>
+    </div>
+
+    <!-- HEADER -->
+    <header class="profile-header">
+        <h1>Profile</h1>
+        <p class="sub">Your identity & control center</p>
+    </header>
+
+    <!-- IDENTITY CARD -->
+    <section class="profile-card identity-card">
+        <div class="avatar">
+            {{ user.name[0]|upper }}
+        </div>
+
+        <div class="identity-info">
+            <h2>{{ user.name }}</h2>
+
+            <div class="member-id">
+                <span>Member ID:</span>
+                <strong>{{ public_id }}</strong>
+                <button class="btn small neutral" onclick="copyText('{{ public_id }}')">Copy ID</button>
+            </div>
+
+            <div class="verified">
+                ✓ Verified Account
+            </div>
+        </div>
+    </section>
+
+    <!-- PRIVACY & SAFETY -->
+    <section class="profile-card">
+        <h3>Privacy & Safety</h3>
+
+        <div class="toggle-row">
+            <span>Allow friend requests via QR</span>
+            <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="toggle-row">
+            <span>Allow friend requests via Member ID</span>
+            <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="link-row">
+            <span>Blocked users</span>
+            <a href="#">Manage</a>
+        </div>
+
+        <div class="link-row">
+            <span>Reports</span>
+            <span class="muted">0</span>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="profile-card stats-card">
+        <h3>Your Stats <span class="muted">(Preview)</span></h3>
+
+        <div class="stats-grid">
+            <div>
+                <strong>Trips completed</strong>
+                <span>{{ stats.trips_completed or 0 }}</span>
+            </div>
+            <div>
+                <strong>Task completion</strong>
+                <span>{{ stats.task_completion_rate or '0%' }}</span>
+            </div>
+            <div>
+                <strong>Friends</strong>
+                <span>{{ stats.friends_count or 0 }}</span>
+            </div>
+            <div>
+                <strong>Most used transport</strong>
+                <span>{{ stats.most_used_transport or 'Walk' }}</span>
+            </div>
+        </div>
+
+        <p class="stats-note">You're improving with every trip.</p>
+    </section>
+
+    <!-- ACCOUNT ACTIONS -->
+    <section class="profile-card actions-card">
+        <a href="/logout" class="btn neutral">Logout</a>
+        <button class="btn danger" onclick="confirmDeleteAccount()">Delete Account</button>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('Copied to clipboard!', 'success');
+    }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showNotification('Copied to clipboard!', 'success');
+    });
+}
+
+function toggleQR() {
+    const box = document.getElementById("qrBox");
+    box.style.display = box.style.display === "none" ? "block" : "none";
+}
+
+function confirmDeleteAccount() {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        if (confirm('This will permanently delete all your trips and data. Are you absolutely sure?')) {
+            fetch('/delete-account', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/';
+                }
+            });
+        }
+    }
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

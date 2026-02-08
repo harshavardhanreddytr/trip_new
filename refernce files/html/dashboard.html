@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Travel Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+           Travel Dashboard - Internal Styles
+           ======================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ede8 100%);
+            color: #2d3436;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .dashboard-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        /* ===== Header Section ===== */
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 1rem;
+        }
+
+        .dashboard-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: #636e72;
+            margin-bottom: 2rem;
+        }
+
+        .header-divider {
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #74b9ff, transparent);
+            margin: 0 auto;
+        }
+
+        /* ===== Action Cards Grid ===== */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            padding: 0 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .action-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .action-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2rem;
+            }
+        }
+
+        /* ===== Action Card Base ===== */
+        .action-card {
+            display: block;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05),
+                        0 2px 4px rgba(0, 0, 0, 0.03);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Card accent bar */
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .action-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Hover effect - interactive lift */
+        .action-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12),
+                        0 8px 16px rgba(0, 0, 0, 0.08);
+            border-color: var(--accent-color-1);
+        }
+
+        /* Active/pressed state */
+        .action-card:active {
+            transform: translateY(-4px) scale(1.01);
+            transition-duration: 0.1s;
+        }
+
+        /* Focus state for accessibility */
+        .action-card:focus {
+            outline: 3px solid var(--accent-color-1);
+            outline-offset: 4px;
+        }
+
+        /* Card icon/emoji */
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .action-card:hover .card-icon {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        /* Card title */
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            color: var(--title-color);
+            transition: color 0.3s ease;
+        }
+
+        .action-card:hover .card-title {
+            color: var(--accent-color-1);
+        }
+
+        /* Card description */
+        .card-description {
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: #636e72;
+            line-height: 1.5;
+        }
+
+        /* Card badge (for primary card) */
+        .card-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--accent-color-1), var(--accent-color-2));
+            color: white;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ===== Card Color Variants ===== */
+        .card-trips {
+            --accent-color-1: #6c5ce7;
+            --accent-color-2: #a29bfe;
+            --title-color: #6c5ce7;
+        }
+
+        .card-trips .card-badge {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.85;
+                transform: scale(1.05);
+            }
+        }
+
+        .card-import {
+            --accent-color-1: #00b894;
+            --accent-color-2: #55efc4;
+            --title-color: #00b894;
+        }
+
+        .card-friends {
+            --accent-color-1: #fd79a8;
+            --accent-color-2: #fdcb6e;
+            --title-color: #fd79a8;
+        }
+
+        .card-analytics {
+            --accent-color-1: #0984e3;
+            --accent-color-2: #74b9ff;
+            --title-color: #0984e3;
+        }
+
+        .card-profile {
+            --accent-color-1: #e17055;
+            --accent-color-2: #fab1a0;
+            --title-color: #e17055;
+        }
+
+        /* ===== Context Strip ===== */
+        .context-strip {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            margin: 0 1rem 3rem 1rem;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .context-strip::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 8s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .context-text {
+            font-size: 1.125rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .context-highlight {
+            font-weight: 700;
+            color: #fdcb6e;
+        }
+
+        /* ===== Secondary Section ===== */
+        .secondary-section {
+            margin: 0 1rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .secondary-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .secondary-icon {
+            font-size: 1.5rem;
+        }
+
+        .secondary-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e1e8ed;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .quick-action:hover {
+            border-color: #74b9ff;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(116, 185, 255, 0.15);
+        }
+
+        .quick-action-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .quick-action-text {
+            flex: 1;
+        }
+
+        .quick-action-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 0.25rem;
+        }
+
+        .quick-action-subtitle {
+            font-size: 0.875rem;
+            color: #636e72;
+        }
+
+        .quick-action-arrow {
+            font-size: 1.5rem;
+            color: #b2bec3;
+            transition: transform 0.3s ease;
+        }
+
+        .quick-action:hover .quick-action-arrow {
+            transform: translateX(4px);
+            color: #74b9ff;
+        }
+
+        /* ===== Responsive Adjustments ===== */
+        @media (max-width: 640px) {
+            .dashboard-title {
+                font-size: 2.25rem;
+            }
+
+            .dashboard-subtitle {
+                font-size: 1.125rem;
+            }
+
+            .action-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .card-icon {
+                font-size: 2rem;
+            }
+
+            .context-strip {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .context-text {
+                font-size: 1rem;
+            }
+        }
+
+        /* ===== Accessibility ===== */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus visible for keyboard navigation */
+        .action-card:focus-visible,
+        .quick-action:focus-visible {
+            outline: 3px solid #74b9ff;
+            outline-offset: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <header class="dashboard-header">
+            <h1 class="dashboard-title">Dashboard</h1>
+            <p class="dashboard-subtitle">Everything you need for this journey.</p>
+            <div class="header-divider"></div>
+        </header>
+
+        <!-- Primary Action Cards -->
+        <section class="action-grid">
+            <!-- Trips Card (Primary) -->
+            <a href="/trips" class="action-card card-trips">
+                <span class="card-badge">Most Used</span>
+                <span class="card-icon">✈️</span>
+                <h3 class="card-title">Trips</h3>
+                <p class="card-description">View and manage all your journeys. Your adventures live here.</p>
+            </a>
+
+            <!-- Import Trip Card (Secondary) -->
+            <a href="/import-trip" class="action-card card-import">
+                <span class="card-icon">📤</span>
+                <h3 class="card-title">Import Trip</h3>
+                <p class="card-description">Upload a JSON itinerary and let us handle the details.</p>
+            </a>
+
+            <!-- Friends Card -->
+            <a href="/friends" class="action-card card-friends">
+                <span class="card-icon">👥</span>
+                <h3 class="card-title">Friends</h3>
+                <p class="card-description">People you trust to travel with. Share the journey.</p>
+            </a>
+
+            <!-- Analytics Card -->
+            <a href="/analytics" class="action-card card-analytics">
+                <span class="card-icon">📊</span>
+                <h3 class="card-title">Analytics</h3>
+                <p class="card-description">Gentle insights and patterns from your travels.</p>
+            </a>
+
+            <!-- Profile Card -->
+            <a href="/profile" class="action-card card-profile">
+                <span class="card-icon">👤</span>
+                <h3 class="card-title">Profile</h3>
+                <p class="card-description">Your identity, preferences, and privacy settings.</p>
+            </a>
+        </section>
+
+        <!-- Today's Context Strip -->
+        <aside class="context-strip">
+            <p class="context-text">
+                You have <span class="context-highlight">2 upcoming trips</span> and <span class="context-highlight">1 active day</span> today.
+            </p>
+        </aside>
+
+        <!-- Secondary Section -->
+        <section class="secondary-section">
+            <h2 class="secondary-title">
+                <span class="secondary-icon">💡</span>
+                Quick Actions
+            </h2>
+            <div class="secondary-content">
+                <a href="/trips/recent" class="quick-action">
+                    <span class="quick-action-icon">🗂️</span>
+                    <div class="quick-action-text">
+                        <div class="quick-action-title">Recently Accessed</div>
+                        <div class="quick-action-subtitle">Pick up where you left off</div>
+                    </div>
+                    <span class="quick-action-arrow">→</span>
+                </a>
+
+                <a href="/import-trip" class="quick-action">
+                    <span class="quick-action-icon">🌟</span>
+                    <div class="quick-action-text">
+                        <div class="quick-action-title">Import your next trip when ready</div>
+                        <div class="quick-action-subtitle">No rush. We're here when you need us.</div>
+                    </div>
+                    <span class="quick-action-arrow">→</span>
+                </a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

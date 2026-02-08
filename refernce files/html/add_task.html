@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Task - Travel Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f7f6f3;
+            color: #3a3a3a;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 100px;
+        }
+
+        /* Header */
+        header {
+            background-color: #fff;
+            border-bottom: 1px solid #e8e6e0;
+            padding: 1.5rem 1.25rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: #6b7355;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            transition: color 0.2s ease;
+        }
+
+        .back-button:hover {
+            color: #4a5038;
+        }
+
+        .back-arrow {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+            line-height: 1;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #2d2d2d;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtext {
+            font-size: 0.95rem;
+            color: #7a7a7a;
+            font-weight: 300;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            max-width: 680px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem 1.25rem;
+        }
+
+        /* Task Card */
+        .task-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #3a3a3a;
+            margin-bottom: 0.5rem;
+        }
+
+        .label-subtext {
+            display: block;
+            font-size: 0.8rem;
+            color: #9a9a9a;
+            font-weight: 400;
+            margin-top: 0.25rem;
+        }
+
+        /* Input Styles */
+        input[type="text"],
+        input[type="time"],
+        textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            color: #3a3a3a;
+            background-color: #fafaf8;
+            border: 1.5px solid #e8e6e0;
+            border-radius: 10px;
+            transition: all 0.25s ease;
+            outline: none;
+        }
+
+        input[type="text"]:focus,
+        input[type="time"]:focus,
+        textarea:focus {
+            background-color: #fff;
+            border-color: #8b9475;
+            box-shadow: 0 0 0 3px rgba(139, 148, 117, 0.1);
+        }
+
+        input[type="text"]::placeholder,
+        textarea::placeholder {
+            color: #b8b8b8;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            line-height: 1.5;
+        }
+
+        /* Time Window Grid */
+        .time-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Smart Context Section */
+        .context-section {
+            background: #f5f4ef;
+            border-left: 3px solid #c4c9b5;
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .context-section p {
+            font-size: 0.875rem;
+            color: #5a5a5a;
+            line-height: 1.5;
+        }
+
+        .context-icon {
+            display: inline-block;
+            margin-right: 0.5rem;
+            opacity: 0.7;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-top: 1px solid #e8e6e0;
+            padding: 1.25rem;
+            box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
+            z-index: 100;
+        }
+
+        .action-bar-content {
+            max-width: 680px;
+            margin: 0 auto;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Buttons */
+        button {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.875rem 1.75rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background-color: #6b7355;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #5a6147;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(107, 115, 85, 0.25);
+        }
+
+        .btn-primary:disabled {
+            background-color: #d4d6cd;
+            color: #a0a0a0;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #6b7355;
+            border: 1.5px solid #d4d6cd;
+            padding: 0.875rem 1.5rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f5f4ef;
+            border-color: #b8bab0;
+        }
+
+        /* Optional Enhancement: Section Separator */
+        .section-separator {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e8e6e0, transparent);
+            margin: 2rem 0;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 640px) {
+            body {
+                padding-bottom: 120px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .task-card {
+                padding: 1.5rem;
+            }
+
+            .time-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-bar-content {
+                flex-direction: column-reverse;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .btn-secondary {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Gentle animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-card {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* Focus visible for accessibility */
+        button:focus-visible {
+            outline: 2px solid #6b7355;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="#" class="back-button" onclick="history.back(); return false;">
+                <span class="back-arrow">←</span>
+                <span>Back to day</span>
+            </a>
+            <h1>Add Task</h1>
+            <p class="subtext">Add one step to your journey.</p>
+        </div>
+    </header>
+
+    <main>
+        <form id="taskForm" class="task-card">
+            <!-- Task Title -->
+            <div class="form-group">
+                <label for="taskTitle">Task title</label>
+                <input 
+                    type="text" 
+                    id="taskTitle" 
+                    name="taskTitle" 
+                    placeholder="Visit Panambur Beach"
+                    required
+                >
+            </div>
+
+            <div class="section-separator"></div>
+
+            <!-- Time Window -->
+            <div class="form-group">
+                <label>Time window</label>
+                <div class="time-grid">
+                    <div>
+                        <label for="startTime" style="font-weight: 400; font-size: 0.85rem; color: #6a6a6a;">Start time</label>
+                        <input 
+                            type="time" 
+                            id="startTime" 
+                            name="startTime"
+                        >
+                    </div>
+                    <div>
+                        <label for="endTime" style="font-weight: 400; font-size: 0.85rem; color: #6a6a6a;">End time</label>
+                        <input 
+                            type="time" 
+                            id="endTime" 
+                            name="endTime"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-separator"></div>
+
+            <!-- Location -->
+            <div class="form-group">
+                <label for="location">
+                    Location
+                    <span class="label-subtext">Used to calculate distance & ETA</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="location" 
+                    name="location" 
+                    placeholder="Enter address or place name"
+                >
+            </div>
+
+            <div class="section-separator"></div>
+
+            <!-- Notes -->
+            <div class="form-group">
+                <label for="notes">Notes <span style="color: #b8b8b8; font-weight: 400;">(optional)</span></label>
+                <textarea 
+                    id="notes" 
+                    name="notes" 
+                    placeholder="Anything to remember?"
+                ></textarea>
+            </div>
+        </form>
+
+        <!-- Smart Context Section -->
+        <div class="context-section">
+            <p>
+                <span class="context-icon">💡</span>
+                You can edit or move this task later.
+            </p>
+        </div>
+    </main>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <div class="action-bar-content">
+            <button type="button" class="btn-secondary" onclick="history.back();">
+                Cancel
+            </button>
+            <button type="submit" class="btn-primary" id="saveBtn" disabled>
+                Save Task
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Enable/disable save button based on title input
+        const taskTitle = document.getElementById('taskTitle');
+        const saveBtn = document.getElementById('saveBtn');
+        const taskForm = document.getElementById('taskForm');
+
+        taskTitle.addEventListener('input', function() {
+            saveBtn.disabled = this.value.trim() === '';
+        });
+
+        // Form submission handler
+        saveBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Collect form data
+            const formData = {
+                title: taskTitle.value,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value,
+                location: document.getElementById('location').value,
+                notes: document.getElementById('notes').value
+            };
+
+            console.log('Task saved:', formData);
+            
+            // In a real app, this would send data to backend
+            // For now, just show success and go back
+            alert('Task saved successfully!');
+            history.back();
+        });
+
+        // Optional: Set current time as default start time
+        window.addEventListener('load', function() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(Math.ceil(now.getMinutes() / 15) * 15).padStart(2, '0');
+            
+            if (document.getElementById('startTime').value === '') {
+                document.getElementById('startTime').value = `${hours}:${minutes}`;
+            }
+        });
+    </script>
+</body>
+</html>

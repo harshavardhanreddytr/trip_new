@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trip Planner – Analytics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="analytics.css" />
+</head>
+<body>
+
+  <div class="dashboard-page">
+    <div class="dashboard-container">
+
+      <!-- HEADER -->
+      <header class="dashboard-header">
+        <h1>Trip Analytics</h1>
+        <p>Overview of your trips – on time, delayed & more</p>
+      </header>
+
+      <!-- ANALYTICS CONTROLS -->
+      <section class="analytics-controls">
+        <label>
+          Time Range
+          <select>
+            <option>This Week</option>
+            <option>This Month</option>
+            <option>All Trips</option>
+          </select>
+        </label>
+
+        <label>
+          Transport
+          <select>
+            <option>All</option>
+            <option>Bus</option>
+            <option>Train</option>
+            <option>Flight</option>
+          </select>
+        </label>
+      </section>
+
+      <!-- ANALYTICS GRID -->
+      <section class="analytics-grid">
+
+        <div class="analytics-card">
+          <h3>On Time Trips</h3>
+          <p><strong>65</strong> trips</p>
+          <p>78% of total journeys</p>
+        </div>
+
+        <div class="analytics-card soft">
+          <h3>Delayed Trips</h3>
+          <p><strong>15</strong> trips</p>
+          <p>Average delay: 12 mins</p>
+        </div>
+
+        <div class="analytics-card">
+          <h3>Cancelled Trips</h3>
+          <p><strong>4</strong> trips</p>
+          <p>Mostly due to weather</p>
+        </div>
+
+        <div class="analytics-card soft">
+          <h3>Upcoming Trips</h3>
+          <p><strong>32</strong> planned</p>
+          <p>Next 7 days</p>
+        </div>
+
+        <div class="analytics-card">
+          <h3>Peak Delay Time</h3>
+          <p><strong>Evening (6–9 PM)</strong></p>
+          <p>Plan buffer time</p>
+        </div>
+
+        <div class="analytics-card soft">
+          <h3>Most Used Transport</h3>
+          <p><strong>Train</strong></p>
+          <p>Reliable & frequent</p>
+        </div>
+
+      </section>
+
+    </div>
+  </div>
+
+</body>
+</html>

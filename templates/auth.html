@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TripPlanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <div class="info">
+    <h1>TripPlanner</h1>
+
+    <p class="tagline">Plan smarter. Travel better.</p>
+
+    <div class="info-text">
+        <p id="quote"></p>
+
+        <p class="sub">
+            Build itineraries, manage budgets, and explore destinations —
+            all in one place.
+        </p>
+
+        <ul>
+            <li>✦ Smart trip planning</li>
+            <li>✦ Personalized travel experiences</li>
+            <li>✦ Simple. Fast. Reliable.</li>
+        </ul>
+    </div>
+</div>
+
+
+    <div class="panel form-panel">
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <div class="flash-message">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- REGISTER -->
+        <form id="registerForm" class="form active" method="POST" action="/register">
+            <h2>Register</h2>
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="confirm" placeholder="Re-enter Password" required>
+            <button type="submit">Register</button>
+            <p class="switch">Already have an account?
+                <span onclick="showLogin()">Login</span>
+            </p>
+        </form>
+
+        <!-- LOGIN -->
+        <form id="loginForm" class="form" method="POST" action="/login">
+            <h2>Login</h2>
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+
+            <label class="remember">
+                <input type="checkbox"> Remember me
+            </label>
+
+            <p class="forgot" onclick="showForgot()">Forgot password?</p>
+
+            <button type="submit">Login</button>
+            <p class="switch">New here?
+                <span onclick="showRegister()">Register</span>
+            </p>
+        </form>
+
+        <!-- FORGOT -->
+        <form id="forgotForm" class="form" method="POST" action="/forgot">
+            <h2>Forgot Password</h2>
+            <input type="text" name="username" placeholder="Username" required>
+            <button type="submit">Reset</button>
+            <p class="switch">
+                <span onclick="showLogin()">Back to Login</span>
+            </p>
+        </form>
+
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+</html>

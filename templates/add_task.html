@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Add Task – TripPlanner{% endblock %}
+
+{% block content %}
+
+<div class="edit-task-page">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <span class="breadcrumb-icon">🏠</span>
+        <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+        <span class="breadcrumb-sep">→</span>
+        <a href="/trips" class="breadcrumb-link">Trips</a>
+        <span class="breadcrumb-sep">→</span>
+        <a href="/trip/{{ trip.id }}" class="breadcrumb-link">{{ trip.name }}</a>
+        <span class="breadcrumb-sep">→</span>
+        <a href="/trip/{{ trip.id }}/day/{{ day.id }}" class="breadcrumb-link">{{ day.date }}</a>
+        <span class="breadcrumb-sep">→</span>
+        <span class="breadcrumb-current">Add Task</span>
+    </div>
+
+    <header class="edit-header">
+        <h1>Add Task</h1>
+        <p>
+            {{ trip.name }} · {{ day.date }}<br>
+            {% if position and ref_task %}
+            {{ "Before" if position == "before" else "After" }}:
+            <strong>{{ ref_task.title }}</strong>
+            {% endif %}
+        </p>
+    </header>
+
+    <form method="POST" class="edit-form">
+
+        <label>
+            Task Title
+            <input type="text" name="title" required placeholder="e.g., Visit Eiffel Tower">
+        </label>
+
+        <label>
+            Start Time
+            <input type="time" name="start_time" required>
+        </label>
+
+        <label>
+            End Time
+            <input type="time" name="end_time" required>
+        </label>
+
+        <label>
+            Description (Optional)
+            <textarea name="description" rows="3" placeholder="Additional details about this task..."></textarea>
+        </label>
+
+        <label>
+            Latitude (Optional)
+            <input type="number" step="any" name="lat" placeholder="48.8566">
+        </label>
+
+        <label>
+            Longitude (Optional)
+            <input type="number" step="any" name="lng" placeholder="2.3522">
+        </label>
+
+        <button type="submit" class="btn primary">Add Task</button>
+
+        <a class="cancel-link"
+           href="/trip/{{ trip.id }}/day/{{ day.id }}">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Auto-fill end time when start time is selected
+document.querySelector('input[name="start_time"]').addEventListener('change', function(e) {
+    const startTime = e.target.value;
+    const endTimeInput = document.querySelector('input[name="end_time"]');
+    
+    if (startTime && !endTimeInput.value) {
+        const [hours, minutes] = startTime.split(':');
+        const startDate = new Date();
+        startDate.setHours(parseInt(hours), parseInt(minutes));
+        
+        // Add 1 hour as default duration
+        startDate.setHours(startDate.getHours() + 1);
+        
+        const endHours = startDate.getHours().toString().padStart(2, '0');
+        const endMinutes = startDate.getMinutes().toString().padStart(2, '0');
+        
+        endTimeInput.value = `${endHours}:${endMinutes}`;
+    }
+});
+
+// Get user's current location for lat/lng
+function getCurrentLocation() {
+    if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            document.querySelector('input[name="lat"]').value = position.coords.latitude.toFixed(6);
+            document.querySelector('input[name="lng"]').value = position.coords.longitude.toFixed(6);
+        });
+    }
+}
+
+// Add button to get current location
+document.querySelector('input[name="lat"]').insertAdjacentHTML('afterend', 
+    '<button type="button" onclick="getCurrentLocation()" style="margin-top: 0.5rem;" class="btn small neutral">Use Current Location</button>'
+);
+</script>
+{% endblock %}

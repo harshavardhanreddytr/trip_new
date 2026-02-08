@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Notes – {{ task.title }}{% endblock %}
+
+{% block content %}
+
+<div class="notes-page">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <span class="breadcrumb-icon">🏠</span>
+        <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+        <span class="breadcrumb-sep">→</span>
+        <a href="/trips" class="breadcrumb-link">Trips</a>
+        <span class="breadcrumb-sep">→</span>
+        <a href="/trip/{{ task.trip_id }}" class="breadcrumb-link">Trip</a>
+        <span class="breadcrumb-sep">→</span>
+        <a href="/trip/{{ task.trip_id }}/day/{{ task.day_id }}" class="breadcrumb-link">Day</a>
+        <span class="breadcrumb-sep">→</span>
+        <span class="breadcrumb-current">Task Notes</span>
+    </div>
+
+    <header class="notes-header">
+        <h1>Notes</h1>
+        <p>{{ task.title }}</p>
+    </header>
+
+    <main class="notes-main">
+
+        <!-- NOTES FORM -->
+        <form method="POST" class="notes-form">
+            <textarea name="content" rows="6" placeholder="Add notes here...">{% if note %}{{ note.current_text }}{% endif %}</textarea>
+
+            <button type="submit" class="btn primary">💾 Save Notes</button>
+        </form>
+
+        <!-- HISTORY -->
+        {% if history %}
+        <section class="notes-history">
+            <h3>History</h3>
+            <ul>
+                {% for h in history %}
+                <li>
+                    <div class="history-time">{{ h.edited_at }}</div>
+                    <div class="history-text">{{ h.text }}</div>
+                    <div class="history-user">Edited by {{ h.edited_by }}</div>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+
+    </main>
+
+    <footer class="notes-footer">
+        <a href="/trip/{{ task.trip_id }}/day/{{ task.day_id }}" class="btn neutral">← Back to Day</a>
+    </footer>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Auto-save functionality
+let autoSaveTimer;
+const textarea = document.querySelector('textarea[name="content"]');
+
+textarea.addEventListener('input', function() {
+    clearTimeout(autoSaveTimer);
+    
+    autoSaveTimer = setTimeout(() => {
+        autoSave();
+    }, 2000); // Auto-save after 2 seconds of no typing
+});
+
+function autoSave() {
+    const content = textarea.value;
+    
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `content=${encodeURIComponent(content)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Auto-saved', 'success');
+        }
+    })
+    .catch(error => {
+        console.error('Auto-save failed:', error);
+    });
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 2000);
+}
+
+// Prevent accidental navigation away with unsaved changes
+let originalContent = textarea.value;
+window.addEventListener('beforeunload', function(e) {
+    if (textarea.value !== originalContent) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
+// Mark content as saved when form is submitted
+document.querySelector('.notes-form').addEventListener('submit', function() {
+    originalContent = textarea.value;
+});
+</script>
+{% endblock %}

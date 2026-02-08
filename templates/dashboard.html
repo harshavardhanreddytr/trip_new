@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard – TripPlanner{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <div class="dashboard-container">
+
+        <!-- HEADER -->
+        <header class="dashboard-header">
+            <h1>Dashboard</h1>
+            <p class="sub">Where do you want to go?</p>
+        </header>
+
+        <!-- NAVIGATION GRID -->
+        <section class="dashboard-actions">
+
+            <a href="/trips" class="action-card">
+                <h3>Trips</h3>
+                <p>View your journeys</p>
+            </a>
+
+            <a href="/import-trips" class="action-card">
+                <h3>Import Trips</h3>
+                <p>Add a new itinerary</p>
+            </a>
+
+            <a href="/analytics-ui" class="action-card">
+                <h3>Analytics</h3>
+                <p>Insights & patterns</p>
+            </a>
+
+            <a href="/friends" class="action-card">
+                <h3>Friends</h3>
+                <p>People you trust</p>
+            </a>
+
+            <a href="/profile" class="action-card">
+                <h3>Profile</h3>
+                <p>Your QR & details</p>
+            </a>
+
+        </section>
+
+    </div>
+</div>
+{% endblock %}

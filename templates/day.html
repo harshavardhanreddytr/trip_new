@@ -1,0 +1,1463 @@
+{% extends "base.html" %}
+
+{% block title %}{{ day.date }} – {{ trip.name }}{% endblock %}
+
+{% block extra_head %}
+  <style>
+    /* ============= CSS RESET & BASE ============= */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    html {
+      font-size: 16px;
+    }
+
+    /* ============= COLOR VARIABLES ============= */
+    :root {
+      --background: #faf9f7;
+      --foreground: #1a1a1a;
+      --card: #f5f3ef;
+      --border: rgba(0, 0, 0, 0.08);
+      --olive-green: #6b7455;
+      --olive-green-light: #8b9474;
+      --olive-green-subtle: #a8b193;
+      --beige-card: #f5f3ef;
+      --off-white: #faf9f7;
+      --warm-gray: #8a8884;
+      --destructive: #d4183d;
+    }
+
+    /* ============= TYPOGRAPHY ============= */
+    h1 {
+      font-size: 1.875rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--foreground);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--foreground);
+    }
+
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--foreground);
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      line-height: 1.6;
+    }
+
+    /* ============= LAYOUT ============= */
+    .page-container {
+      min-height: 100vh;
+      background-color: var(--background);
+    }
+
+    .content-wrapper {
+      max-width: 48rem;
+      margin: 0 auto;
+      padding: 1.5rem;
+      padding-bottom: 6rem;
+    }
+
+    /* ============= HEADER ============= */
+    .day-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .header-title-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .context-badge {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .context-badge.today {
+      background-color: rgba(107, 116, 85, 0.2);
+      color: var(--olive-green);
+    }
+
+    .context-badge.past {
+      background-color: rgba(138, 136, 132, 0.2);
+      color: var(--warm-gray);
+    }
+
+    .context-badge.upcoming {
+      background-color: rgba(168, 177, 147, 0.3);
+      color: var(--olive-green);
+    }
+
+    .header-subtitle {
+      color: var(--warm-gray);
+      font-size: 1.125rem;
+      margin-bottom: 1rem;
+    }
+
+    .header-task-count {
+      font-size: 0.875rem;
+      color: var(--warm-gray);
+    }
+
+    /* ============= CONTEXT BANNER ============= */
+    .context-banner {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      border-left: 4px solid;
+      animation: slideDown 0.4s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .context-banner.today {
+      background-color: rgba(107, 116, 85, 0.05);
+      border-left-color: var(--olive-green);
+    }
+
+    .context-banner.past {
+      background-color: rgba(138, 136, 132, 0.05);
+      border-left-color: var(--warm-gray);
+    }
+
+    .context-banner.upcoming {
+      background-color: rgba(168, 177, 147, 0.1);
+      border-left-color: var(--olive-green-subtle);
+    }
+
+    /* ============= TASK STREAM ============= */
+    .task-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .task-block {
+      background-color: var(--card);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+    }
+
+    .task-block:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .task-block.current {
+      border-color: var(--olive-green);
+      box-shadow: 0 0 0 2px rgba(107, 116, 85, 0.1);
+    }
+
+    .task-block.completed {
+      opacity: 0.7;
+      background-color: rgba(107, 116, 85, 0.05);
+    }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .task-title-section h3 {
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .task-time {
+      font-size: 0.875rem;
+      color: var(--warm-gray);
+    }
+
+    .task-menu-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      color: var(--warm-gray);
+      font-size: 1.25rem;
+      transition: color 0.2s;
+    }
+
+    .task-menu-button:hover {
+      color: var(--foreground);
+    }
+
+    .task-menu-container {
+      position: relative;
+    }
+    
+    .task-menu-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      min-width: 180px;
+      z-index: 1000;
+      overflow: hidden;
+    }
+    
+    .menu-item {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: none;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--foreground);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background-color 0.2s;
+    }
+    
+    .menu-item:hover {
+      background-color: var(--off-white);
+    }
+    
+    .menu-item.destructive {
+      color: #dc2626;
+    }
+    
+    .menu-item.destructive:hover {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+    
+    .menu-divider {
+      height: 1px;
+      background-color: var(--border);
+      margin: 0.25rem 0;
+    }
+
+    /* Location Info */
+    .location-box {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background-color: rgba(255, 255, 255, 0.4);
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .location-box.nearby {
+      box-shadow: inset 0 0 0 2px rgba(107, 116, 85, 0.2);
+    }
+
+    .location-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-top: 0.125rem;
+      flex-shrink: 0;
+      color: var(--olive-green);
+    }
+
+    .location-info {
+      flex: 1;
+    }
+
+    .location-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .location-distance {
+      font-size: 0.75rem;
+      color: var(--warm-gray);
+    }
+
+    .location-distance.nearby {
+      color: var(--olive-green);
+      font-weight: 500;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .action-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      background-color: white;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+      white-space: nowrap;
+    }
+
+    .action-button:hover {
+      background-color: var(--off-white);
+      border-color: var(--olive-green);
+    }
+
+    .action-button.primary {
+      background-color: var(--olive-green);
+      border-color: var(--olive-green);
+      color: white;
+    }
+
+    .action-button.primary:hover {
+      background-color: #5a6248;
+    }
+
+    .action-button.destructive {
+      color: var(--destructive);
+    }
+
+    .action-button.destructive:hover {
+      background-color: rgba(212, 24, 61, 0.05);
+      border-color: var(--destructive);
+    }
+
+    /* ============= FLOATING ACTION BAR ============= */
+    .floating-action-bar {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+    }
+
+    .floating-bar-content {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      padding: 0.75rem;
+      border-radius: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+    }
+
+    .floating-bar-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 1.5rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: none;
+      color: var(--foreground);
+    }
+
+    .floating-bar-button.primary {
+      background-color: var(--olive-green);
+      color: white;
+    }
+
+    .floating-bar-button.primary:hover {
+      background-color: #5a6248;
+    }
+
+    .floating-bar-button.ghost:hover {
+      background-color: var(--off-white);
+    }
+
+    .floating-bar-divider {
+      width: 1px;
+      height: 1.5rem;
+      background-color: var(--border);
+    }
+
+    /* ============= NOTES SHEET ============= */
+    .notes-sheet {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      background: #ffffff !important;
+      border-radius: 1rem 1rem 0 0;
+      transform: translateY(100%);
+      transition: transform 0.3s ease-out;
+      z-index: 1001 !important;
+      max-height: 80vh;
+      min-height: 350px !important;
+      box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3) !important;
+      visibility: hidden;
+      overflow: visible !important;
+    }
+
+    .notes-sheet.open {
+      transform: translateY(0) !important;
+      visibility: visible !important;
+    }
+
+    .notes-backdrop {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      background: rgba(255, 0, 0, 0.3) !important;
+      z-index: 1000 !important;
+    }
+    
+    .notes-sheet-content {
+      background: #f0f0f0 !important;
+      padding: 20px !important;
+      border: 1px solid #ccc !important;
+    }
+
+    .notes-sheet-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .close-notes-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #666;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+
+    .close-notes-btn:hover {
+      background-color: #f0f0f0;
+      color: #333;
+    }
+
+    .notes-sheet-title {
+      font-size: 1.125rem;
+      font-weight: 500;
+      color: var(--foreground);
+      margin: 0;
+    }
+
+    .notes-sheet-content {
+      padding: 1.5rem;
+      overflow-y: auto;
+      max-height: calc(80vh - 60px);
+    }
+
+    .notes-label {
+      font-size: 0.875rem;
+      color: var(--warm-gray);
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .auto-saving {
+      font-size: 0.75rem;
+      color: var(--olive-green);
+      animation: pulse 1s infinite;
+    }
+
+    .notes-textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      background-color: white;
+      font-family: inherit;
+      resize: none;
+      margin-bottom: 1rem;
+    }
+
+    .notes-textarea:focus {
+      outline: none;
+      border-color: var(--olive-green);
+      box-shadow: 0 0 0 2px rgba(107, 116, 85, 0.1);
+    }
+
+    .notes-save-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background-color: var(--olive-green);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .notes-save-button:hover {
+      background-color: #5a6248;
+    }
+
+    /* ============= RESPONSIVE ============= */
+    @media (max-width: 640px) {
+      .content-wrapper {
+        padding: 1rem;
+      }
+
+      .header-title-section {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .task-block {
+        padding: 1rem;
+      }
+      
+      .action-buttons {
+        gap: 0.375rem;
+      }
+
+      .floating-bar-content {
+        padding: 0.5rem;
+      }
+
+      .notes-sheet {
+        max-height: 60vh;
+      }
+
+      .notes-sheet-content {
+        max-height: calc(60vh - 60px);
+      }
+
+      .action-button {
+        font-size: 0.75rem;
+        gap: 0.25rem;
+        padding: 0.375rem 0.75rem;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="page-container">
+    <div class="content-wrapper">
+      <!-- Day Header -->
+      <header class="day-header" id="dayHeader">
+        <div class="header-top">
+          <div class="header-title-section">
+            <h1 id="dayOfWeek">{{ day.date }}</h1>
+            <span class="context-badge {{ 'today' if day_context == 'today' else ('past' if day_context == 'past' else 'upcoming') }}" id="contextBadge">{{ day_context|title }}</span>
+          </div>
+        </div>
+        <p class="header-subtitle" id="dayDate">{{ trip.name }}</p>
+        <p class="header-task-count"><span id="taskCount">{{ tasks|length }}</span> tasks planned</p>
+      </header>
+
+      <!-- Context Banner -->
+      <div class="context-banner {{ 'today' if day_context == 'today' else ('past' if day_context == 'past' else 'upcoming') }}" id="contextBanner">
+        <p id="bannerMessage">Focus on what's ahead. We'll track progress quietly.</p>
+      </div>
+
+      <!-- Task Stream -->
+      <div class="task-stream" id="taskStream">
+        {% if tasks %}
+          {% for task in tasks %}
+          <div class="task-block {{ 'current' if task.is_current else '' }} {{ 'completed' if task.completed else '' }}" 
+               data-task-id="{{ task.id }}" 
+               data-lat="{{ task.lat or '' }}" 
+               data-lng="{{ task.lng or '' }}">
+            
+            <div class="task-header">
+              <div class="task-title-section">
+                <h3>{{ task.title }}</h3>
+                <div class="task-time">{{ task.start_time }} - {{ task.end_time }}</div>
+              </div>
+              <div class="task-menu-container">
+                <button class="task-menu-button" onclick="toggleTaskMenu('{{ task.id }}')">⋮</button>
+                <div class="task-menu-dropdown" id="menu-{{ task.id }}" style="display: none;">
+                  <button class="menu-item" onclick="changeTaskStatus('{{ task.id }}', null)">↩️ Reset Status</button>
+                  <button class="menu-item" onclick="changeTaskStatus('{{ task.id }}', 'YES')">✅ Mark as Done</button>
+                  <button class="menu-item" onclick="changeTaskStatus('{{ task.id }}', 'SKIPPED')">⏭️ Mark as Skipped</button>
+                  <div class="menu-divider"></div>
+                  <button class="menu-item" onclick="editTask('{{ task.id }}')">✏️ Edit Task</button>
+                  <button class="menu-item" onclick="console.log('Notes button clicked for task:', '{{ task.id }}'); openNotes('{{ task.id }}')">📝 Notes</button>
+                  {% if task.lat and task.lng %}
+                  <button class="menu-item" onclick="viewOnMaps('{{ task.lat }}', '{{ task.lng }}', '{{ task.title }}')">🗺️ View on Maps</button>
+                  {% endif %}
+                  <div class="menu-divider"></div>
+                  <button class="menu-item destructive" onclick="deleteTask('{{ task.id }}')">🗑️ Delete Task</button>
+                </div>
+              </div>
+            </div>
+
+            {% if task.lat and task.lng %}
+            <div class="location-box" id="location-{{ task.id }}">
+              <svg class="location-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+              </svg>
+              <div class="location-info">
+                <div class="location-name">{{ task.title }}</div>
+                <div class="location-distance" id="distance-{{ task.id }}">Calculating distance...</div>
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="action-buttons">
+              {% if not task.completed %}
+              <button class="action-button primary" onclick="markTaskStatus('{{ task.id }}', 'YES')">
+                <span>✓</span>
+                <span>Done</span>
+              </button>
+              <button class="action-button" onclick="markTaskStatus('{{ task.id }}', 'SKIPPED')">
+                <span>→</span>
+                <span>Skip</span>
+              </button>
+              {% endif %}
+              {% if task.lat and task.lng %}
+              <button class="action-button" onclick="viewOnMaps('{{ task.lat }}', '{{ task.lng }}', '{{ task.title }}')">
+                <span>🗺️</span>
+                <span>View Maps</span>
+              </button>
+              <button class="action-button" onclick="shareLocation('{{ task.lat }}', '{{ task.lng }}', '{{ task.title }}')">
+                <span>📍</span>
+                <span>Share Location</span>
+              </button>
+              {% endif %}
+              <button class="action-button" onclick="console.log('Action notes button clicked for task:', '{{ task.id }}'); openNotes('{{ task.id }}')">
+                <span>📝</span>
+                <span>Notes</span>
+              </button>
+              <button class="action-button" onclick="editTask('{{ task.id }}')">
+                <span>✏️</span>
+                <span>Edit</span>
+              </button>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <p>No tasks planned for this day.</p>
+            <button class="action-button primary" onclick="addTask()">
+              <span>+</span>
+              <span>Add first task</span>
+            </button>
+          </div>
+        {% endif %}
+        
+        <!-- Debug: Add test button for notes modal -->
+        <div style="position: fixed; top: 100px; right: 20px; z-index: 9999;">
+          <button onclick="window.forceShowNotesModal()" style="background: red; color: white; padding: 10px; border: none; border-radius: 5px;">
+            TEST MODAL
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Bar -->
+  <div class="floating-action-bar" id="floatingActionBar">
+    <div class="floating-bar-content">
+      <button class="floating-bar-button primary" onclick="addTask()">
+        <span>+</span>
+        <span>Add task</span>
+      </button>
+      <div class="floating-bar-divider"></div>
+      <button class="floating-bar-button ghost" onclick="jumpToCurrent()">
+        <span>→</span>
+        <span>Current task</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Notes Sheet (Modal) -->
+  <div class="notes-sheet" id="notesSheet" onclick="closeNotesOnBackdrop(event)">
+    <div class="notes-sheet-content" onclick="event.stopPropagation()" style="min-height: 300px; padding: 20px; background: white;">
+      <div class="notes-sheet-header" style="padding: 15px 0; border-bottom: 1px solid #ccc;">
+        <h2 class="notes-sheet-title" id="notesTaskTitle" style="margin: 0; font-size: 18px;">Task Title</h2>
+        <button class="close-notes-btn" onclick="closeNotes()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+      </div>
+      <div class="notes-form-content" style="padding-top: 20px;">
+        <div class="notes-label" style="margin-bottom: 10px;">
+          <span style="font-weight: bold;">Notes</span>
+          <span class="auto-saving" id="autoSavingIndicator" style="display: none; color: #666;">Auto-saving...</span>
+        </div>
+        <textarea class="notes-textarea" id="notesTextarea" placeholder="Add your notes here..." style="width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; font-family: inherit;"></textarea>
+        <button class="notes-save-button" onclick="saveNotes()" style="margin-top: 15px; background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+          <span>✓</span>
+          <span>Save & Close</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add backdrop for modal -->
+  <div class="notes-backdrop" id="notesBackdrop" onclick="closeNotes()" style="display: none;"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    // ============= DATA & STATE =============
+    let tasks;
+    try {
+      tasks = JSON.parse('{{ tasks | tojson }}') || [];
+      console.log('Loaded tasks:', tasks.length, 'tasks');
+    } catch (e) {
+      console.error('Error parsing tasks JSON:', e);
+      tasks = [];
+    }
+    
+    const tripId = '{{ trip.id }}';
+    const dayId = '{{ day.id }}';
+    let currentTaskId = null;
+    let selectedNoteTaskId = null;
+    let userLocation = null;
+    let proximityCheckInterval = null;
+
+    // ============= INITIALIZATION =============
+    function init() {
+      updateTaskCount();
+      requestGeolocation();
+      updateCurrentTask();
+      startPeriodicUpdates();
+      setupScrollListener();
+      
+      // Debug: Check if notes elements are present
+      console.log('Notes sheet element:', document.getElementById('notesSheet'));
+      console.log('Notes textarea element:', document.getElementById('notesTextarea'));
+      console.log('Notes title element:', document.getElementById('notesTaskTitle'));
+      
+      // Debug: Check tasks data
+      console.log('Total tasks loaded:', tasks.length);
+      if (tasks.length > 0) {
+        console.log('First task sample:', tasks[0]);
+      }
+    }
+
+    function startPeriodicUpdates() {
+      // Update current task every minute
+      setInterval(updateCurrentTask, 60000);
+      
+      // Check proximity every 30 seconds
+      proximityCheckInterval = setInterval(checkProximity, 30000);
+    }
+
+    // ============= GEOLOCATION =============
+    function requestGeolocation() {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError);
+        navigator.geolocation.watchPosition(onLocationSuccess, onLocationError, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
+        });
+      }
+    }
+
+    function onLocationSuccess(position) {
+      userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: position.coords.accuracy
+      };
+      updateDistances();
+      checkProximity();
+    }
+
+    function onLocationError(error) {
+      console.warn('Geolocation error:', error.message);
+    }
+
+    // ============= DISTANCE CALCULATIONS =============
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // Earth's radius in km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function calculateEstimatedTime(distance) {
+      const averageSpeed = 30; // kmph
+      const timeInMinutes = Math.round((distance / averageSpeed) * 60);
+      
+      if (timeInMinutes <= 1) return '1 min';
+      if (timeInMinutes < 60) return `${timeInMinutes} mins`;
+      
+      const hours = Math.floor(timeInMinutes / 60);
+      const mins = timeInMinutes % 60;
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+    }
+
+    function updateDistances() {
+      if (!userLocation) return;
+
+      tasks.forEach(task => {
+        if (task.lat && task.lng) {
+          const distance = getDistance(userLocation.lat, userLocation.lng, task.lat, task.lng);
+          const distanceElement = document.getElementById(`distance-${task.id}`);
+          const locationBox = document.getElementById(`location-${task.id}`);
+          
+          if (distanceElement) {
+            const distanceText = distance < 1 
+              ? `${Math.round(distance * 1000)}m away` 
+              : `${distance.toFixed(1)}km away`;
+            
+            const estimatedTime = calculateEstimatedTime(distance);
+            
+            distanceElement.innerHTML = `${distanceText} • ~${estimatedTime}`;
+            
+            if (distance < 0.05) { // Within 50m
+              distanceElement.classList.add('nearby');
+              locationBox?.classList.add('nearby');
+            }
+          }
+        }
+      });
+    }
+
+    function checkProximity() {
+      if (!userLocation) return;
+      
+      tasks.forEach(task => {
+        if (task.lat && task.lng && !task.completed) {
+          const distance = getDistance(userLocation.lat, userLocation.lng, task.lat, task.lng);
+          
+          // Auto-mark as arrived if very close (< 20m)
+          if (distance <= 0.02 && !task.autoArrived) {
+            task.autoArrived = true;
+            markTaskStatus(task.id, 'YES', true);
+          }
+        }
+      });
+    }
+
+    // ============= TASK MANAGEMENT =============
+    function updateTaskCount() {
+      document.getElementById('taskCount').textContent = tasks.length;
+    }
+
+    function updateCurrentTask() {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const currentTime = currentHour * 60 + currentMinute;
+      
+      tasks.forEach(task => {
+        const [startHour, startMinute] = task.start_time.split(':').map(Number);
+        const [endHour, endMinute] = task.end_time.split(':').map(Number);
+        const startTime = startHour * 60 + startMinute;
+        const endTime = endHour * 60 + endMinute;
+        
+        task.is_current = currentTime >= startTime && currentTime <= endTime && !task.completed;
+        
+        const taskElement = document.querySelector(`[data-task-id="${task.id}"]`);
+        if (taskElement) {
+          taskElement.classList.toggle('current', task.is_current);
+        }
+      });
+    }
+
+    function markTaskStatus(taskId, status, isAuto = false) {
+      fetch(`/task/${taskId}/status/${status}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auto: isAuto })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const task = tasks.find(t => t.id === taskId);
+          if (task) {
+            task.completed = (status === 'YES');
+            task.skipped = (status === 'SKIPPED');
+          }
+          
+          const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+          if (taskElement) {
+            taskElement.classList.toggle('completed', task.completed);
+            taskElement.classList.toggle('skipped', task.skipped);
+            
+            // Hide action buttons if completed or skipped
+            const actionButtons = taskElement.querySelector('.action-buttons');
+            const doneSkipButtons = actionButtons.querySelectorAll('.action-button.primary, .action-button:not(.primary):first-of-type');
+            doneSkipButtons.forEach(btn => {
+              if (task.completed || task.skipped) {
+                btn.style.display = 'none';
+              } else {
+                btn.style.display = 'flex';
+              }
+            });
+          }
+          
+          updateCurrentTask();
+          
+          if (!isAuto) {
+            showNotification(status === 'YES' ? 'Task completed!' : 'Task skipped');
+          }
+        } else {
+          showNotification('Error updating task: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Error updating task status:', error);
+        showNotification('Network error updating task');
+      });
+    }
+
+    // ============= UI ACTIONS =============
+    function toggleTaskMenu(taskId) {
+      const menu = document.getElementById(`menu-${taskId}`);
+      const isVisible = menu.style.display !== 'none';
+      
+      // Hide all other menus first
+      document.querySelectorAll('.task-menu-dropdown').forEach(m => {
+        m.style.display = 'none';
+      });
+      
+      // Toggle current menu
+      menu.style.display = isVisible ? 'none' : 'block';
+      
+      if (!isVisible) {
+        // Close menu when clicking outside
+        const closeMenu = (e) => {
+          if (!e.target.closest('.task-menu-container')) {
+            menu.style.display = 'none';
+            document.removeEventListener('click', closeMenu);
+          }
+        };
+        setTimeout(() => document.addEventListener('click', closeMenu), 0);
+      }
+    }
+
+    function changeTaskStatus(taskId, newStatus) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      if (newStatus === null) {
+        // Reset status - delete from task_status_events
+        fetch(`/task/${taskId}/status/reset`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            task.completed = false;
+            task.skipped = false;
+            task.status = null;
+            
+            const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+            if (taskElement) {
+              taskElement.classList.remove('completed', 'skipped');
+              // Show action buttons again
+              const actionButtons = taskElement.querySelector('.action-buttons');
+              const doneSkipButtons = actionButtons.querySelectorAll('.action-button.primary, .action-button:not(.primary):first-of-type');
+              doneSkipButtons.forEach(btn => btn.style.display = 'flex');
+            }
+            
+            updateCurrentTask();
+            showNotification('Task status reset');
+          }
+        })
+        .catch(error => {
+          console.error('Error resetting task status:', error);
+          showNotification('Error resetting task status');
+        });
+      } else {
+        // Use existing markTaskStatus function
+        markTaskStatus(taskId, newStatus);
+      }
+      
+      // Hide the menu
+      document.getElementById(`menu-${taskId}`).style.display = 'none';
+    }
+
+    function addTask() {
+      window.location.href = `/trip/${tripId}/day/${dayId}/add-task`;
+    }
+
+    function editTask(taskId) {
+      window.location.href = `/task/${taskId}/edit`;
+    }
+
+    function jumpToCurrent() {
+      // Find the next incomplete task instead of just current
+      const nextTask = tasks.find(task => !task.completed && !task.skipped);
+      if (nextTask) {
+        const taskElement = document.querySelector(`[data-task-id="${nextTask.id}"]`);
+        if (taskElement) {
+          taskElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Highlight the task briefly
+          taskElement.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.5)';
+          setTimeout(() => {
+            taskElement.style.boxShadow = '';
+          }, 2000);
+        }
+      } else {
+        showNotification('All tasks completed!');
+      }
+    }
+
+    function viewOnMaps(lat, lng, title) {
+      // Open in Google Maps
+      const url = `https://maps.google.com/?q=${lat},${lng}&ll=${lat},${lng}&z=15`;
+      window.open(url, '_blank');
+    }
+
+    function shareLocation(lat, lng, title) {
+      const locationUrl = `https://maps.google.com/?q=${lat},${lng}&ll=${lat},${lng}&z=15`;
+      const shareText = `📍 ${title}\n${locationUrl}`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: title,
+          text: shareText,
+          url: locationUrl
+        }).catch(console.error);
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareText).then(() => {
+          showNotification('Location copied to clipboard!');
+        }).catch(() => {
+          fallbackCopyToClipboard(shareText);
+        });
+      } else {
+        fallbackCopyToClipboard(shareText);
+      }
+    }
+
+    function fallbackCopyToClipboard(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showNotification('Location copied to clipboard!');
+      } catch (err) {
+        alert('Location: ' + text);
+      }
+      document.body.removeChild(textArea);
+    }
+
+    function openNotes(taskId) {
+      console.log('=== openNotes called ===');
+      console.log('Opening notes for task:', taskId, 'Type:', typeof taskId);
+      
+      selectedNoteTaskId = taskId;
+      
+      // Convert taskId to number if it's a string, since IDs might be strings from HTML
+      const numericTaskId = parseInt(taskId);
+      console.log('Numeric task ID:', numericTaskId);
+      
+      const task = tasks.find(t => t.id == taskId || t.id == numericTaskId);
+      
+      if (task) {
+        console.log('Found task:', task);
+        const titleElement = document.getElementById('notesTaskTitle');
+        const textareaElement = document.getElementById('notesTextarea');
+        const sheetElement = document.getElementById('notesSheet');
+        
+        console.log('DOM elements check:');
+        console.log('- Title element:', titleElement);
+        console.log('- Textarea element:', textareaElement);
+        console.log('- Sheet element:', sheetElement);
+        
+        if (!titleElement || !textareaElement || !sheetElement) {
+          console.error('Missing notes modal elements');
+          alert('Error: Notes modal elements not found in DOM');
+          return;
+        }
+        
+        titleElement.textContent = task.title;
+        textareaElement.value = task.notes || '';
+        
+        console.log('Adding open class to sheet...');
+        sheetElement.classList.add('open');
+        
+        // Show backdrop
+        const backdrop = document.getElementById('notesBackdrop');
+        if (backdrop) {
+          backdrop.style.display = 'block';
+          console.log('Backdrop shown');
+        } else {
+          console.error('Backdrop element not found!');
+        }
+        
+        console.log('Sheet classes after adding open:', sheetElement.classList.toString());
+        console.log('Sheet computed style:', window.getComputedStyle(sheetElement).transform);
+        
+        // Double check the modal is visible
+        setTimeout(() => {
+          const rect = sheetElement.getBoundingClientRect();
+          console.log('Modal position after timeout:', {
+            top: rect.top,
+            bottom: rect.bottom,
+            height: rect.height,
+            visible: rect.height > 0 && rect.top < window.innerHeight
+          });
+          
+          if (rect.height === 0 || rect.top >= window.innerHeight) {
+            console.error('Modal is not visible! Forcing display...');
+            sheetElement.style.display = 'block';
+            sheetElement.style.visibility = 'visible';
+            sheetElement.style.transform = 'translateY(0)';
+          }
+        }, 500);
+        
+        // Focus the textarea for better UX
+        setTimeout(() => {
+          textareaElement.focus();
+          console.log('Textarea focused');
+        }, 100);
+      } else {
+        console.error('Task not found:', taskId, 'Type:', typeof taskId);
+        console.log('Available tasks:', tasks.map(t => ({id: t.id, type: typeof t.id, title: t.title})));
+        alert(`Error: Task with ID ${taskId} not found`);
+      }
+    }
+
+    function saveNotes() {
+      if (!selectedNoteTaskId) {
+        console.error('No task selected for notes');
+        return;
+      }
+      
+      const notesTextarea = document.getElementById('notesTextarea');
+      if (!notesTextarea) {
+        console.error('Notes textarea not found');
+        return;
+      }
+      
+      const notes = notesTextarea.value;
+      const saveButton = document.querySelector('.notes-save-button');
+      const originalText = saveButton.innerHTML;
+      
+      // Show loading state
+      saveButton.innerHTML = '<span>⏳</span><span>Saving...</span>';
+      saveButton.disabled = true;
+      
+      console.log('Saving notes for task:', selectedNoteTaskId);
+      
+      fetch(`/task/${selectedNoteTaskId}/notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `content=${encodeURIComponent(notes)}`
+      })
+      .then(response => {
+        console.log('Save response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Save response data:', data);
+        if (data.success) {
+          // Update local task data
+          const task = tasks.find(t => t.id === selectedNoteTaskId);
+          if (task) {
+            task.notes = notes;
+          }
+          closeNotes();
+          showNotification('Notes saved!');
+        } else {
+          throw new Error(data.message || 'Failed to save notes');
+        }
+      })
+      .catch(error => {
+        console.error('Error saving notes:', error);
+        showNotification('Failed to save notes. Please try again.', 'error');
+      })
+      .finally(() => {
+        // Restore button state
+        saveButton.innerHTML = originalText;
+        saveButton.disabled = false;
+      });
+    }
+
+    function closeNotes() {
+      const notesSheet = document.getElementById('notesSheet');
+      const saveButton = document.querySelector('.notes-save-button');
+      const backdrop = document.getElementById('notesBackdrop');
+      
+      // Remove the modal
+      notesSheet.classList.remove('open');
+      
+      // Hide backdrop
+      if (backdrop) {
+        backdrop.style.display = 'none';
+      }
+      
+      // Clear state
+      selectedNoteTaskId = null;
+      
+      // Reset the save button in case it was in loading state
+      if (saveButton && saveButton.disabled) {
+        saveButton.innerHTML = '<span>✓</span><span>Save & Close</span>';
+        saveButton.disabled = false;
+      }
+      
+      // Clear the textarea for next use (optional - you might want to keep the content)
+      // document.getElementById('notesTextarea').value = '';
+    }
+
+    function closeNotesOnBackdrop(event) {
+      // Only close if clicking on the backdrop (the modal itself, not its content)
+      if (event.target === event.currentTarget) {
+        closeNotes();
+      }
+    }
+
+    // Global debugging function - can be called from browser console
+    window.testNotesModal = function(taskId) {
+      console.log('=== Testing Notes Modal ===');
+      console.log('Task ID provided:', taskId);
+      console.log('Available tasks:', tasks.map(t => ({id: t.id, title: t.title})));
+      
+      if (!taskId && tasks.length > 0) {
+        taskId = tasks[0].id;
+        console.log('Using first task ID:', taskId);
+      }
+      
+      openNotes(taskId);
+    };
+
+    // Force show modal for testing - call from console
+    window.forceShowNotesModal = function() {
+      console.log('=== Force Show Modal Test ===');
+      const sheet = document.getElementById('notesSheet');
+      const backdrop = document.getElementById('notesBackdrop');
+      
+      console.log('Sheet element:', sheet);
+      console.log('Backdrop element:', backdrop);
+      
+      if (sheet) {
+        // Try positioning at the top instead of bottom for testing
+        sheet.style.position = 'fixed';
+        sheet.style.top = '100px';
+        sheet.style.left = '50px';
+        sheet.style.right = '50px';
+        sheet.style.bottom = 'auto';
+        sheet.style.transform = 'none';
+        sheet.style.zIndex = '9999';
+        sheet.style.background = 'red';
+        sheet.style.border = '5px solid blue';
+        sheet.style.minHeight = '300px';
+        
+        sheet.classList.add('open');
+        sheet.style.display = 'block';
+        sheet.style.visibility = 'visible';
+        console.log('Applied styles to sheet - positioned at top');
+      }
+      
+      if (backdrop) {
+        backdrop.style.display = 'block';
+        backdrop.style.zIndex = '9998';
+        console.log('Showed backdrop');
+      }
+      
+      // Test if modal is actually visible
+      setTimeout(() => {
+        const computedStyle = window.getComputedStyle(sheet);
+        const rect = sheet.getBoundingClientRect();
+        
+        console.log('Computed styles:');
+        console.log('- display:', computedStyle.display);
+        console.log('- visibility:', computedStyle.visibility);
+        console.log('- transform:', computedStyle.transform);
+        console.log('- z-index:', computedStyle.zIndex);
+        console.log('- position:', computedStyle.position);
+        console.log('- background:', computedStyle.background);
+        
+        console.log('Modal position:');
+        console.log('- top:', rect.top);
+        console.log('- left:', rect.left);
+        console.log('- width:', rect.width);
+        console.log('- height:', rect.height);
+        console.log('- bottom:', rect.bottom);
+        console.log('- viewport height:', window.innerHeight);
+        console.log('- is in viewport:', rect.top < window.innerHeight && rect.bottom > 0);
+        
+        // Add red border for testing
+        sheet.style.border = '5px solid red';
+        sheet.style.backgroundColor = 'yellow';
+        console.log('Added test border and background color');
+      }, 100);
+    };
+
+    function deleteTask(taskId) {
+      const task = tasks.find(t => t.id == taskId || t.id == parseInt(taskId));
+      const taskTitle = task ? task.title : 'this task';
+      
+      if (confirm(`Are you sure you want to delete "${taskTitle}"?\n\nThis action cannot be undone.`)) {
+        console.log('Deleting task:', taskId);
+        
+        fetch(`/task/${taskId}/delete`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            // Remove task from local array
+            const taskIndex = tasks.findIndex(t => t.id == taskId || t.id == parseInt(taskId));
+            if (taskIndex !== -1) {
+              tasks.splice(taskIndex, 1);
+            }
+            
+            // Remove task element from DOM
+            const taskElement = document.getElementById(`task-${taskId}`);
+            if (taskElement) {
+              taskElement.remove();
+            }
+            
+            updateTaskCount();
+            updateCurrentTask();
+            showNotification(data.message || 'Task deleted successfully!', 'success');
+            
+            // Close any open dropdowns
+            const openDropdown = document.querySelector('.task-menu-dropdown[style*="block"]');
+            if (openDropdown) {
+              openDropdown.style.display = 'none';
+            }
+          } else {
+            throw new Error(data.message || 'Failed to delete task');
+          }
+        })
+        .catch(error => {
+          console.error('Error deleting task:', error);
+          showNotification('Failed to delete task. Please try again.', 'error');
+        });
+      }
+    }
+
+    function setupScrollListener() {
+      let lastScrollTop = 0;
+      const floatingBar = document.getElementById('floatingActionBar');
+      
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (scrollTop > lastScrollTop && scrollTop > 100) {
+          floatingBar.style.transform = 'translateX(-50%) translateY(100px)';
+        } else {
+          floatingBar.style.transform = 'translateX(-50%) translateY(0)';
+        }
+        
+        lastScrollTop = scrollTop;
+      });
+    }
+
+    function showNotification(message, type = 'success') {
+      // Create a simple toast notification
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        ${type === 'error' ? 'background-color: #d4183d;' : 'background-color: #6b7455;'}
+      `;
+      
+      document.body.appendChild(toast);
+      
+      // Fade in
+      setTimeout(() => toast.style.opacity = '1', 10);
+      
+      // Fade out and remove
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => document.body.removeChild(toast), 300);
+      }, 3000);
+    }
+
+    // Close notes when clicking outside
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'notesSheet') {
+        closeNotes();
+      }
+    });
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+{% endblock %}
