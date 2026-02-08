@@ -2,6 +2,52 @@
 
 {% block title %}Analytics – TripPlanner{% endblock %}
 
+{% block extra_head %}
+<style>
+/* ============= COLOR VARIABLES ============= */
+:root {
+  --background: #faf9f7;
+  --foreground: #1a1a1a;
+  --card: #f5f3ef;
+  --border: rgba(0, 0, 0, 0.08);
+  --olive-green: #6b7455;
+  --olive-green-light: #8b9474;
+  --olive-green-subtle: #a8b193;
+  --beige-card: #f5f3ef;
+  --off-white: #faf9f7;
+  --warm-gray: #8a8884;
+  --destructive: #d4183d;
+}
+
+.dashboard-page {
+  background: linear-gradient(135deg, var(--off-white) 0%, var(--beige-card) 100%);
+  min-height: 100vh;
+}
+
+.analytics-controls select {
+  border: 1px solid var(--olive-green-subtle);
+  background: var(--card);
+  color: var(--olive-green);
+}
+
+.analytics-controls select:focus {
+  border-color: var(--olive-green);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(107, 116, 85, 0.1);
+}
+
+.analytics-grid .analytics-card {
+  background: linear-gradient(135deg, var(--card) 0%, var(--off-white) 100%);
+  border: 1px solid var(--olive-green-subtle);
+  box-shadow: 0 2px 8px rgba(107, 116, 85, 0.1);
+}
+
+.analytics-card:hover {
+  box-shadow: 0 4px 16px rgba(107, 116, 85, 0.15);
+}
+</style>
+{% endblock %}
+
 {% block content %}
 
 <div class="dashboard-page">

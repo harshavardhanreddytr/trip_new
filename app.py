@@ -1516,53 +1516,6 @@ def reset_task_status(task_id):
     return {"success": True}
 
 
-@app.route("/task/<task_id>/notes", methods=["GET", "POST"])
-def task_notes(task_id):
-    conn = get_db()
-
-    cur = conn.cursor()
-    cur.execute(
-        "SELECT * FROM tasks WHERE id = %s",
-        (task_id,)
-    )
-    task = cur.fetchone()
-
-    if not task:
-        cur.close()
-        return jsonify({"success": False, "message": "Task not found"}), 404
-
-    if request.method == "POST":
-        try:
-            content = request.form["content"]
-            now = datetime.now().isoformat()
-
-            # Try to update the notes column directly on the task
-            cur.execute("""
-                UPDATE tasks
-                SET notes = %s, updated_at = %s
-                WHERE id = %s
-            """, (
-                content,
-                now,
-                task_id
-            ))
-            conn.commit()
-            cur.close()
-
-            # Return JSON response for AJAX requests
-            return jsonify({"success": True, "message": "Notes saved successfully"})
-            
-        except Exception as e:
-            cur.close()
-            print(f"Error saving notes: {e}")
-            return jsonify({"success": False, "message": f"Error saving notes: {str(e)}"}), 500
-
-    # GET request - return current notes
-    cur.close()
-    notes_content = task.get('notes', '') if task else ''
-    return jsonify({"success": True, "notes": notes_content})
-
-
 @app.route("/trip/<trip_id>")
 @login_required
 def trip_view(trip_id):

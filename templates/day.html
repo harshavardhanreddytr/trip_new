@@ -639,7 +639,7 @@
                   <button class="menu-item" onclick="changeTaskStatus('{{ task.id }}', 'SKIPPED')">⏭️ Mark as Skipped</button>
                   <div class="menu-divider"></div>
                   <button class="menu-item" onclick="editTask('{{ task.id }}')">✏️ Edit Task</button>
-                  <button class="menu-item" onclick="console.log('Notes button clicked for task:', '{{ task.id }}'); openNotes('{{ task.id }}')">📝 Notes</button>
+                  <button class="menu-item">📝 Notes</button>
                   {% if task.lat and task.lng %}
                   <button class="menu-item" onclick="viewOnMaps('{{ task.lat }}', '{{ task.lng }}', '{{ task.title }}')">🗺️ View on Maps</button>
                   {% endif %}
@@ -682,7 +682,7 @@
                 <span>Share Location</span>
               </button>
               {% endif %}
-              <button class="action-button" onclick="console.log('Action notes button clicked for task:', '{{ task.id }}'); openNotes('{{ task.id }}')">
+              <button class="action-button">
                 <span>📝</span>
                 <span>Notes</span>
               </button>
@@ -703,12 +703,7 @@
           </div>
         {% endif %}
         
-        <!-- Debug: Add test button for notes modal -->
-        <div style="position: fixed; top: 100px; right: 20px; z-index: 9999;">
-          <button onclick="window.forceShowNotesModal()" style="background: red; color: white; padding: 10px; border: none; border-radius: 5px;">
-            TEST MODAL
-          </button>
-        </div>
+
       </div>
     </div>
   </div>
@@ -728,29 +723,7 @@
     </div>
   </div>
 
-  <!-- Notes Sheet (Modal) -->
-  <div class="notes-sheet" id="notesSheet" onclick="closeNotesOnBackdrop(event)">
-    <div class="notes-sheet-content" onclick="event.stopPropagation()" style="min-height: 300px; padding: 20px; background: white;">
-      <div class="notes-sheet-header" style="padding: 15px 0; border-bottom: 1px solid #ccc;">
-        <h2 class="notes-sheet-title" id="notesTaskTitle" style="margin: 0; font-size: 18px;">Task Title</h2>
-        <button class="close-notes-btn" onclick="closeNotes()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
-      </div>
-      <div class="notes-form-content" style="padding-top: 20px;">
-        <div class="notes-label" style="margin-bottom: 10px;">
-          <span style="font-weight: bold;">Notes</span>
-          <span class="auto-saving" id="autoSavingIndicator" style="display: none; color: #666;">Auto-saving...</span>
-        </div>
-        <textarea class="notes-textarea" id="notesTextarea" placeholder="Add your notes here..." style="width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; font-family: inherit;"></textarea>
-        <button class="notes-save-button" onclick="saveNotes()" style="margin-top: 15px; background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
-          <span>✓</span>
-          <span>Save & Close</span>
-        </button>
-      </div>
-    </div>
-  </div>
 
-  <!-- Add backdrop for modal -->
-  <div class="notes-backdrop" id="notesBackdrop" onclick="closeNotes()" style="display: none;"></div>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -1102,251 +1075,13 @@
       document.body.removeChild(textArea);
     }
 
-    function openNotes(taskId) {
-      console.log('=== openNotes called ===');
-      console.log('Opening notes for task:', taskId, 'Type:', typeof taskId);
-      
-      selectedNoteTaskId = taskId;
-      
-      // Convert taskId to number if it's a string, since IDs might be strings from HTML
-      const numericTaskId = parseInt(taskId);
-      console.log('Numeric task ID:', numericTaskId);
-      
-      const task = tasks.find(t => t.id == taskId || t.id == numericTaskId);
-      
-      if (task) {
-        console.log('Found task:', task);
-        const titleElement = document.getElementById('notesTaskTitle');
-        const textareaElement = document.getElementById('notesTextarea');
-        const sheetElement = document.getElementById('notesSheet');
-        
-        console.log('DOM elements check:');
-        console.log('- Title element:', titleElement);
-        console.log('- Textarea element:', textareaElement);
-        console.log('- Sheet element:', sheetElement);
-        
-        if (!titleElement || !textareaElement || !sheetElement) {
-          console.error('Missing notes modal elements');
-          alert('Error: Notes modal elements not found in DOM');
-          return;
-        }
-        
-        titleElement.textContent = task.title;
-        textareaElement.value = task.notes || '';
-        
-        console.log('Adding open class to sheet...');
-        sheetElement.classList.add('open');
-        
-        // Show backdrop
-        const backdrop = document.getElementById('notesBackdrop');
-        if (backdrop) {
-          backdrop.style.display = 'block';
-          console.log('Backdrop shown');
-        } else {
-          console.error('Backdrop element not found!');
-        }
-        
-        console.log('Sheet classes after adding open:', sheetElement.classList.toString());
-        console.log('Sheet computed style:', window.getComputedStyle(sheetElement).transform);
-        
-        // Double check the modal is visible
-        setTimeout(() => {
-          const rect = sheetElement.getBoundingClientRect();
-          console.log('Modal position after timeout:', {
-            top: rect.top,
-            bottom: rect.bottom,
-            height: rect.height,
-            visible: rect.height > 0 && rect.top < window.innerHeight
-          });
-          
-          if (rect.height === 0 || rect.top >= window.innerHeight) {
-            console.error('Modal is not visible! Forcing display...');
-            sheetElement.style.display = 'block';
-            sheetElement.style.visibility = 'visible';
-            sheetElement.style.transform = 'translateY(0)';
-          }
-        }, 500);
-        
-        // Focus the textarea for better UX
-        setTimeout(() => {
-          textareaElement.focus();
-          console.log('Textarea focused');
-        }, 100);
-      } else {
-        console.error('Task not found:', taskId, 'Type:', typeof taskId);
-        console.log('Available tasks:', tasks.map(t => ({id: t.id, type: typeof t.id, title: t.title})));
-        alert(`Error: Task with ID ${taskId} not found`);
-      }
-    }
 
-    function saveNotes() {
-      if (!selectedNoteTaskId) {
-        console.error('No task selected for notes');
-        return;
-      }
-      
-      const notesTextarea = document.getElementById('notesTextarea');
-      if (!notesTextarea) {
-        console.error('Notes textarea not found');
-        return;
-      }
-      
-      const notes = notesTextarea.value;
-      const saveButton = document.querySelector('.notes-save-button');
-      const originalText = saveButton.innerHTML;
-      
-      // Show loading state
-      saveButton.innerHTML = '<span>⏳</span><span>Saving...</span>';
-      saveButton.disabled = true;
-      
-      console.log('Saving notes for task:', selectedNoteTaskId);
-      
-      fetch(`/task/${selectedNoteTaskId}/notes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `content=${encodeURIComponent(notes)}`
-      })
-      .then(response => {
-        console.log('Save response status:', response.status);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Save response data:', data);
-        if (data.success) {
-          // Update local task data
-          const task = tasks.find(t => t.id === selectedNoteTaskId);
-          if (task) {
-            task.notes = notes;
-          }
-          closeNotes();
-          showNotification('Notes saved!');
-        } else {
-          throw new Error(data.message || 'Failed to save notes');
-        }
-      })
-      .catch(error => {
-        console.error('Error saving notes:', error);
-        showNotification('Failed to save notes. Please try again.', 'error');
-      })
-      .finally(() => {
-        // Restore button state
-        saveButton.innerHTML = originalText;
-        saveButton.disabled = false;
-      });
-    }
 
-    function closeNotes() {
-      const notesSheet = document.getElementById('notesSheet');
-      const saveButton = document.querySelector('.notes-save-button');
-      const backdrop = document.getElementById('notesBackdrop');
-      
-      // Remove the modal
-      notesSheet.classList.remove('open');
-      
-      // Hide backdrop
-      if (backdrop) {
-        backdrop.style.display = 'none';
-      }
-      
-      // Clear state
-      selectedNoteTaskId = null;
-      
-      // Reset the save button in case it was in loading state
-      if (saveButton && saveButton.disabled) {
-        saveButton.innerHTML = '<span>✓</span><span>Save & Close</span>';
-        saveButton.disabled = false;
-      }
-      
-      // Clear the textarea for next use (optional - you might want to keep the content)
-      // document.getElementById('notesTextarea').value = '';
-    }
 
-    function closeNotesOnBackdrop(event) {
-      // Only close if clicking on the backdrop (the modal itself, not its content)
-      if (event.target === event.currentTarget) {
-        closeNotes();
-      }
-    }
 
-    // Global debugging function - can be called from browser console
-    window.testNotesModal = function(taskId) {
-      console.log('=== Testing Notes Modal ===');
-      console.log('Task ID provided:', taskId);
-      console.log('Available tasks:', tasks.map(t => ({id: t.id, title: t.title})));
-      
-      if (!taskId && tasks.length > 0) {
-        taskId = tasks[0].id;
-        console.log('Using first task ID:', taskId);
-      }
-      
-      openNotes(taskId);
-    };
 
-    // Force show modal for testing - call from console
-    window.forceShowNotesModal = function() {
-      console.log('=== Force Show Modal Test ===');
-      const sheet = document.getElementById('notesSheet');
-      const backdrop = document.getElementById('notesBackdrop');
-      
-      console.log('Sheet element:', sheet);
-      console.log('Backdrop element:', backdrop);
-      
-      if (sheet) {
-        // Try positioning at the top instead of bottom for testing
-        sheet.style.position = 'fixed';
-        sheet.style.top = '100px';
-        sheet.style.left = '50px';
-        sheet.style.right = '50px';
-        sheet.style.bottom = 'auto';
-        sheet.style.transform = 'none';
-        sheet.style.zIndex = '9999';
-        sheet.style.background = 'red';
-        sheet.style.border = '5px solid blue';
-        sheet.style.minHeight = '300px';
-        
-        sheet.classList.add('open');
-        sheet.style.display = 'block';
-        sheet.style.visibility = 'visible';
-        console.log('Applied styles to sheet - positioned at top');
-      }
-      
-      if (backdrop) {
-        backdrop.style.display = 'block';
-        backdrop.style.zIndex = '9998';
-        console.log('Showed backdrop');
-      }
-      
-      // Test if modal is actually visible
-      setTimeout(() => {
-        const computedStyle = window.getComputedStyle(sheet);
-        const rect = sheet.getBoundingClientRect();
-        
-        console.log('Computed styles:');
-        console.log('- display:', computedStyle.display);
-        console.log('- visibility:', computedStyle.visibility);
-        console.log('- transform:', computedStyle.transform);
-        console.log('- z-index:', computedStyle.zIndex);
-        console.log('- position:', computedStyle.position);
-        console.log('- background:', computedStyle.background);
-        
-        console.log('Modal position:');
-        console.log('- top:', rect.top);
-        console.log('- left:', rect.left);
-        console.log('- width:', rect.width);
-        console.log('- height:', rect.height);
-        console.log('- bottom:', rect.bottom);
-        console.log('- viewport height:', window.innerHeight);
-        console.log('- is in viewport:', rect.top < window.innerHeight && rect.bottom > 0);
-        
-        // Add red border for testing
-        sheet.style.border = '5px solid red';
-        sheet.style.backgroundColor = 'yellow';
-        console.log('Added test border and background color');
-      }, 100);
-    };
+
+
 
     function deleteTask(taskId) {
       const task = tasks.find(t => t.id == taskId || t.id == parseInt(taskId));
@@ -1450,12 +1185,7 @@
       }, 3000);
     }
 
-    // Close notes when clicking outside
-    document.addEventListener('click', (e) => {
-      if (e.target.id === 'notesSheet') {
-        closeNotes();
-      }
-    });
+
 
     // Initialize on load
     document.addEventListener('DOMContentLoaded', init);

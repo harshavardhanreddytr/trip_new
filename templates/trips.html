@@ -4,6 +4,21 @@
 
 {% block extra_head %}
 <style>
+/* ============= COLOR VARIABLES ============= */
+:root {
+  --background: #faf9f7;
+  --foreground: #1a1a1a;
+  --card: #f5f3ef;
+  --border: rgba(0, 0, 0, 0.08);
+  --olive-green: #6b7455;
+  --olive-green-light: #8b9474;
+  --olive-green-subtle: #a8b193;
+  --beige-card: #f5f3ef;
+  --off-white: #faf9f7;
+  --warm-gray: #8a8884;
+  --destructive: #d4183d;
+}
+
 .trip-item-wrapper {
     position: relative;
     display: flex;
@@ -14,7 +29,7 @@
     position: absolute;
     top: 12px;
     right: 12px;
-    background: #dc2626;
+    background: var(--destructive);
     color: white;
     border: none;
     border-radius: 6px;
@@ -37,7 +52,7 @@
 
 .trips-page {
     min-height: 100vh;
-    background: #faf9f7;
+    background: linear-gradient(135deg, var(--off-white) 0%, var(--beige-card) 100%);
 }
 
 .trips-container {
